@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <assert.h>
 
 class Image
 {
@@ -31,7 +32,7 @@ public:
 		delete data;
 	}
 
-	FSI_DISABLE_COPY_MOVE(Image);
+	FSI_DISABLE_COPY_MOVE(Image); // Just to keep memory management simple
 
 	uint8_t* data;
 
@@ -43,6 +44,27 @@ public:
 
 	fsi::Depth depth;
 };
+
+void invertColor(uint64_t width, uint64_t height, uint64_t channels, fsi::Depth depth, uint8_t* data)
+{
+	assert(depth == fsi::Depth::Uint16 && "Data must be Uint16");
+	assert(channels == 3 && "Image must have 3 channels");
+
+	uint16_t* dataPtr = reinterpret_cast<uint16_t*>(data);
+
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
+		{
+			dataPtr[y*width*channels + x*channels + 0]
+				= 65535 - dataPtr[y*width*channels + x*channels + 0];
+			dataPtr[y*width*channels + x*channels + 1]
+				= 65535 - dataPtr[y*width*channels + x*channels + 1];
+			dataPtr[y*width*channels + x*channels + 2]
+				= 65535 - dataPtr[y*width*channels + x*channels + 2];
+		}
+	}
+}
 
 int main()
 {
@@ -56,14 +78,14 @@ int main()
 	// Read
 	// ----
 
-	std::cout << "Reading input...\n";
+	cout << "Reading input...\n";
 
 	fsi::Reader reader;
 
 	result = reader.open(inPath);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
@@ -74,23 +96,32 @@ int main()
 	result = reader.read(image.data);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
 	reader.close();
 
-	std::cout << "Input read successfully\n";
+	cout << "Input read successfully\n";
+
+	cout << " ---- Image information ----\n";
+	cout << "   Width: " << image.width << "\n";
+	cout << "   Height: " << image.height << "\n";
+	cout << "   Channels: " << image.channels << "\n";
+	cout << "   Depth: " << image.depth << "\n";
+	cout << " ---------------------------\n";
 
 	// Invert color
 	// ------------
 
-	// ...
+	cout << "Inverting image colors...\n";
+	invertColor(image.width, image.height, image.channels, image.depth, image.data);
+	cout << "Image colors inverted\n";
 
 	// Write
 	// -----
 
-	std::cout << "Writing output...\n";
+	cout << "Writing output...\n";
 
 	fsi::Writer writer;
 	fsi::Header headerWriter;
@@ -102,20 +133,20 @@ int main()
 	result = writer.open(outPath, headerWriter, fsi::FormatVersion::V1);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
 	result = writer.write(&image.data[0]);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
 	writer.close();
 
-	std::cout << "Output written successfully\n";
+	cout << "Output written successfully\n";
 
 	return 0;
 }
