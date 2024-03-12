@@ -1,0 +1,32 @@
+// © 2023 Friendly Shade, Inc.
+// © 2023 Sebastian Zapata
+//
+// This file is part of FSI.
+// FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
+// file, you can obtain one at https://opensource.org/license/mit.
+
+#pragma once
+
+#if @INSTALL_LIBRARY_IS_SHARED@ // shared
+	#ifdef FSI_@LIBRARY_NAME_UPPERCASE@_EXPORTS
+		// Windows
+		#if defined(_WIN32)
+			#define FSI_@LIBRARY_NAME_UPPERCASE@_API __declspec(dllexport)
+		// Linux
+		#elif defined(__linux__)
+			#define FSI_@LIBRARY_NAME_UPPERCASE@_API __attribute__((visibility("default")))
+		#endif
+	#else
+		// Windows
+		#if defined(_WIN32)
+			#define FSI_@LIBRARY_NAME_UPPERCASE@_API __declspec(dllimport)
+		// Linux
+		#elif defined(__linux__)
+			#define FSI_@LIBRARY_NAME_UPPERCASE@_API
+		#endif
+	#endif
+#else // static or header-only
+	#define FSI_@LIBRARY_NAME_UPPERCASE@_API
+#endif
+
+#define FSI_@LIBRARY_NAME_UPPERCASE@_HEADERONLY @INSTALL_LIBRARY_IS_INTERFACE@
