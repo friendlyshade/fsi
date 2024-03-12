@@ -11,7 +11,7 @@ Friendly Shade Image Format (FSI for short) is a modern, future-proof image file
 ## Support
 For questions about implementation, please contact us at [https://friendlyshade.com/contact](https://friendlyshade.com/contact)
 
-## FSI v2 (C++ IO implementation is in progress)
+## FSI v2
 All data should be read/written in little-endian byte order.
 
 ### Header Section
