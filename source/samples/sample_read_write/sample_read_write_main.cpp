@@ -9,8 +9,9 @@
 #include "../../modules/core/Writer.h"
 #include "../../modules/core/Depth.h"
 #include "../../modules/global.h"
-#include <vector>
 #include <iostream>
+#include <string>
+#include <vector>
 
 class Image
 {
@@ -47,13 +48,15 @@ int main()
 {
 	using std::cout;
 
-	std::filesystem::path inPath = "../../samples/stone-wall-7/input.fsi";
-	std::filesystem::path outPath = "../../samples/stone-wall-7/output.fsi";
+	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
+	std::filesystem::path outPath = "../../extras/samples/stone-wall-7/output.fsi";
 
 	fsi::Result result;
 
 	// Read
 	// ----
+
+	std::cout << "Reading input...\n";
 
 	fsi::Reader reader;
 
@@ -77,6 +80,8 @@ int main()
 
 	reader.close();
 
+	std::cout << "Input read successfully\n";
+
 	// Invert color
 	// ------------
 
@@ -85,13 +90,15 @@ int main()
 	// Write
 	// -----
 
+	std::cout << "Writing output...\n";
+
 	fsi::Writer writer;
 	fsi::Header headerWriter;
 	headerWriter.width = image.width;
 	headerWriter.height = image.height;
 	headerWriter.channels = image.channels;
 	headerWriter.depth = image.depth;
-	std::cout << headerWriter.width << "\n";
+
 	result = writer.open(outPath, headerWriter, fsi::FormatVersion::V1);
 	if (result != fsi::Result::Code::Success)
 	{
@@ -107,6 +114,8 @@ int main()
 	}
 
 	writer.close();
+
+	std::cout << "Output written successfully\n";
 
 	return 0;
 }

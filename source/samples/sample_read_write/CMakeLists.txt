@@ -26,8 +26,8 @@ set(SAMPLE_FILES
     "stone-wall-7/input.fsi"
 )
 foreach(FILE ${SAMPLE_FILES})
-    get_filename_component(source_path "${CMAKE_SOURCE_DIR}/../samples/${FILE}" ABSOLUTE)
-    get_filename_component(destination_path "${CMAKE_BINARY_DIR}/bin/samples/${FILE}" ABSOLUTE)
+    get_filename_component(source_path "${CMAKE_SOURCE_DIR}/../extras/samples/${FILE}" ABSOLUTE)
+    get_filename_component(destination_path "${CMAKE_BINARY_DIR}/extras/samples/${FILE}" ABSOLUTE)
     get_filename_component(destination_dir "${destination_path}" DIRECTORY)
 
     add_custom_command(
@@ -41,7 +41,7 @@ endforeach()
 
 # Install sample files
 install(
-	DIRECTORY "${CMAKE_BINARY_DIR}/bin/samples"
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	DIRECTORY "${CMAKE_BINARY_DIR}/extras/samples"
+	DESTINATION "${CMAKE_INSTALL_PREFIX}/extras/"
 	PATTERN "output" EXCLUDE
 )
