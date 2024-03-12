@@ -32,7 +32,7 @@ public:
 		delete data;
 	}
 
-	FSI_DISABLE_COPY_MOVE(Image);
+	FSI_DISABLE_COPY_MOVE(Image); // Just to keep memory management simple
 
 	uint8_t* data;
 
