@@ -1,0 +1,54 @@
+# © 2023 Friendly Shade, Inc.
+# © 2023 Sebastian Zapata
+#
+# This file is part of FSI.
+# FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
+# file, you can obtain one at https://opensource.org/license/mit.
+
+# - Config file for the @CMAKE_PROJECT_NAME_UPPERCASE@ library
+# It defines the following variables
+#  @CMAKE_PROJECT_NAME_UPPERCASE@_INCLUDE_DIRS - include directories for @CMAKE_PROJECT_NAME_UPPERCASE@
+#  @CMAKE_PROJECT_NAME_UPPERCASE@_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(@CMAKE_PROJECT_NAME_UPPERCASE@_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+# Set include directories
+set(@CMAKE_PROJECT_NAME_UPPERCASE@_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../../include")
+
+# Set library directories
+set(@CMAKE_PROJECT_NAME_UPPERCASE@_LIBRARY_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../lib")
+
+# Import targets
+include("${@CMAKE_PROJECT_NAME_UPPERCASE@_CMAKE_DIR}/lib/cmake/@CMAKE_PROJECT_NAME@/@CMAKE_PROJECT_NAME_UPPERCASE@Targets.cmake")
+
+# Create imported targets for @CMAKE_PROJECT_NAME_UPPERCASE@
+foreach(${PROJECT_MODULE_TARGET} "@CMAKE_TARGETS@")
+	target_include_directories(${PROJECT_MODULE_TARGET} INTERFACE ${@CMAKE_PROJECT_NAME_UPPERCASE@_INCLUDE_DIRS})
+	target_link_directories(${PROJECT_MODULE_TARGET} INTERFACE ${@CMAKE_PROJECT_NAME_UPPERCASE@_LIBRARY_DIRS})
+	target_link_libraries(${PROJECT_MODULE_TARGET} INTERFACE ${@CMAKE_PROJECT_NAME_UPPERCASE@_LIBRARIES})
+endforeach()
+
+# Install the export set for use with the install-tree
+#install(EXPORT @CMAKE_PROJECT_NAME_UPPERCASE@Targets
+#    NAMESPACE @CMAKE_PROJECT_NAME_UPPERCASE@::
+#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/@CMAKE_PROJECT_NAME@
+#)
+
+# Install the @CMAKE_PROJECT_NAME_UPPERCASE@Config.cmake and @CMAKE_PROJECT_NAME_UPPERCASE@ConfigVersion files
+#configure_package_config_file(
+#    ${@CMAKE_PROJECT_NAME_UPPERCASE@_CMAKE_DIR}/@CMAKE_PROJECT_NAME_UPPERCASE@Config.cmake.in
+#    ${CMAKE_CURRENT_BINARY_DIR}/@CMAKE_PROJECT_NAME_UPPERCASE@Config.cmake
+#    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/@CMAKE_PROJECT_NAME@
+#)
+
+#install(
+#    FILES ${CMAKE_CURRENT_BINARY_DIR}/@CMAKE_PROJECT_NAME_UPPERCASE@Config.cmake
+#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/@CMAKE_PROJECT_NAME@
+#)
+
+# Install the find module
+#install(
+#    FILES ${@CMAKE_PROJECT_NAME_UPPERCASE@_CMAKE_DIR}/Find@CMAKE_PROJECT_NAME_UPPERCASE@.cmake
+#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/@CMAKE_PROJECT_NAME@
+#)

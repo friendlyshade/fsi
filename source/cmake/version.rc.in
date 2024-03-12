@@ -1,0 +1,37 @@
+// © 2023 Friendly Shade, Inc.
+// © 2023 Sebastian Zapata
+//
+// This file is part of FSI.
+// FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
+// file, you can obtain one at https://opensource.org/license/mit.
+
+1 VERSIONINFO
+FILEVERSION     @INSTALL_VERSION_MAJOR@,@INSTALL_VERSION_MINOR@,@INSTALL_VERSION_PATCH@,0
+PRODUCTVERSION  @INSTALL_VERSION_MAJOR@,@INSTALL_VERSION_MINOR@,@INSTALL_VERSION_PATCH@,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "FileDescription",  "@INSTALL_NAME@ - @INSTALL_PROJECT_DESCRIPTION@\0"
+            VALUE "FileVersion",      "@INSTALL_VERSION_MAJOR@.@INSTALL_VERSION_MINOR@.@INSTALL_VERSION_PATCH@.0\0"
+            VALUE "InternalName",     "@INSTALL_NAME@\0"
+            VALUE "LegalCopyright",   "\xA9 2023 Friendly Shade, Inc., Sebastian Zapata. All rights reserved.\0"
+            VALUE "ProductName",      "@INSTALL_NAME@ - @INSTALL_PROJECT_NAME@ @INSTALL_VERSION_MAJOR@.@INSTALL_VERSION_MINOR@.@INSTALL_VERSION_PATCH@\0"
+            VALUE "ProductVersion",   "@INSTALL_VERSION_MAJOR@.@INSTALL_VERSION_MINOR@.@INSTALL_VERSION_PATCH@.0\0"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        /* The following line should only be modified for localized versions.     */
+        /* It consists of any number of WORD,WORD pairs, with each pair           */
+        /* describing a language,codepage combination supported by the file.      */
+        /*                                                                        */
+        /* For example, a file might have values "0x409,1252" indicating that it  */
+        /* supports English language (0x409) in the Windows ANSI codepage (1252). */
+
+        VALUE "Translation", 0x409, 1252
+
+    END
+END
