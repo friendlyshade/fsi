@@ -56,14 +56,14 @@ int main()
 	// Read
 	// ----
 
-	std::cout << "Reading input...\n";
+	cout << "Reading input...\n";
 
 	fsi::Reader reader;
 
 	result = reader.open(inPath);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
@@ -74,13 +74,13 @@ int main()
 	result = reader.read(image.data);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
 	reader.close();
 
-	std::cout << "Input read successfully\n";
+	cout << "Input read successfully\n";
 
 	// Invert color
 	// ------------
@@ -90,7 +90,7 @@ int main()
 	// Write
 	// -----
 
-	std::cout << "Writing output...\n";
+	cout << "Writing output...\n";
 
 	fsi::Writer writer;
 	fsi::Header headerWriter;
@@ -102,20 +102,20 @@ int main()
 	result = writer.open(outPath, headerWriter, fsi::FormatVersion::V1);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
 	result = writer.write(&image.data[0]);
 	if (result != fsi::Result::Code::Success)
 	{
-		std::cout << result.message() << "\n";
+		cout << result.message() << "\n";
 		return 1;
 	}
 
 	writer.close();
 
-	std::cout << "Output written successfully\n";
+	cout << "Output written successfully\n";
 
 	return 0;
 }
