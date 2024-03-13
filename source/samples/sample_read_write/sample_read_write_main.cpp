@@ -169,7 +169,7 @@ int main()
 		return 1;
 	}
 
-	result = writer.write(&image.data[0], progressCallback);
+	result = writer.write(image.data, progressCallback);
 	if (result != fsi::Result::Code::Success)
 	{
 		cout << result.message() << "\n";
