@@ -11,6 +11,57 @@ Friendly Shade Image Format (FSI for short) is a modern, future-proof image file
 ## Support
 For questions about implementation, please contact us at [https://friendlyshade.com/contact](https://friendlyshade.com/contact)
 
+## Implementation Usage Examples
+### Read
+Simple read operation excluding error handling
+```cpp
+#include <friendlyshade/fsi/core/Depth.h>
+#include <friendlyshade/fsi/core/Header.h>
+#include <friendlyshade/fsi/core/Reader.h>
+
+int main()
+{
+  using fsi::Reader;
+  using fsi::Header;
+  
+  Reader reader;
+  reader.open("path/to/image.fsi");
+  Header header = reader.header();
+  Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
+  reader.read(image.data);
+  reader.close();
+
+  return 0;
+}
+```
+
+### Write
+Simple write operation excluding error handling
+```cpp
+#include <friendlyshade/fsi/core/Depth.h>
+#include <friendlyshade/fsi/core/Header.h>
+#include <friendlyshade/fsi/core/Writer.h>
+
+int main()
+{
+  using fsi::Writer;
+  using fsi::Header;
+    
+  Writer writer;
+  Header header;
+  header.width = image.width;
+  header.height = image.height;
+  header.channels = image.channels;
+  header.depth = image.depth;
+  
+  writer.open("path/to/image.fsi", header, fsi::FormatVersion::Latest);
+  writer.write(image.data);
+  writer.close();
+  
+  return 0;
+}
+```
+
 ## Specification
 ### FSI v2
 All data should be read/written in little-endian byte order.
@@ -112,55 +163,3 @@ All data should be read/written in little-endian byte order.
 - Total size of the data in bytes = width * height * channels * sizeof_data_type_in_bytes.
 
 - It's recommended to read this section in chunks for efficiency, and then reinterpret it as an array of the data type of the Image depth of the image.
-
-## Implementation Usage Examples
-### Read
-Simple read operation excluding error handling
-```cpp
-#include <friendlyshade/fsi/core/Depth.h>
-#include <friendlyshade/fsi/core/Header.h>
-#include <friendlyshade/fsi/core/Reader.h>
-
-int main()
-{
-  using fsi::Reader;
-  using fsi::Header;
-  
-  Reader reader;
-  reader.open("path/to/image.fsi");
-  Header header = reader.header();
-  Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
-  reader.read(image.data);
-  reader.close();
-
-  return 0;
-}
-```
-
-### Write
-Simple write operation excluding error handling
-```cpp
-#include <friendlyshade/fsi/core/Depth.h>
-#include <friendlyshade/fsi/core/Header.h>
-#include <friendlyshade/fsi/core/Writer.h>
-
-int main()
-{
-  using fsi::Writer;
-  using fsi::Header;
-    
-  Writer writer;
-  Header header;
-  header.width = image.width;
-  header.height = image.height;
-  header.channels = image.channels;
-  header.depth = image.depth;
-  
-  writer.open("path/to/image.fsi", header, fsi::FormatVersion::Latest);
-  writer.write(image.data);
-  writer.close();
-  
-  return 0;
-}
-```
-
