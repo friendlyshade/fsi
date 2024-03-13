@@ -11,6 +11,7 @@
 #include "Depth.h"
 #include "FormatVersion.h"
 #include "Header.h"
+#include "ProgressThread.h"
 #include "Result.h"
 #include <filesystem>
 #include <fstream>
@@ -28,7 +29,8 @@ public:
 	Result open(const std::filesystem::path& path, Header header,
 		FormatVersion useFormatVersion = FormatVersion::Latest);
 
-	Result write(const uint8_t* data);
+	Result write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
 

@@ -9,8 +9,8 @@
 
 #include "Reader.h"
 #include "consts.h"
-#include <string>
 #include <iostream>
+#include <atomic>
 
 fsi::Reader::Reader() {}
 
@@ -148,10 +148,21 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::Reader::read(uint8_t* data)
+fsi::Result fsi::Reader::read(uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
+	void* reportProgressOpaquePtr)
 {
 	if (!m_file.is_open())
 		return Result::Code::FileIsNotOpen;
+
+	std::atomic<bool> canceled = false;
+	std::atomic<bool> paused = false;
+	std::atomic<float> progress = 0.0f;
+	ProgressThread progressThread(reportProgressOpaquePtr, reportProgressCB,
+		[&progress]() { return progress.load(std::memory_order_relaxed); },
+		[&canceled]() { canceled = true; },
+		[&paused]() { paused = true; },
+		[&paused]() { paused = false; },
+		100ull);
 
 	switch (m_formatVersion)
 	{
@@ -173,7 +184,21 @@ fsi::Result fsi::Reader::read(uint8_t* data)
 		const size_t total = imageSize - bufferSize;
 		for (; ptr_offset < total; ptr_offset += bufferSize)
 		{
+			while (paused)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+
+			if (canceled)
+			{
+				progressThread.join();
+				close();
+				return Result::Code::Canceled;
+			}
+
 			m_file.read((char*)(data + ptr_offset), bufferSize);
+
+			progress = static_cast<float>(ptr_offset) / static_cast<float>(total);
 		}
 
 		// Read remaining bytes (if any)
@@ -186,10 +211,13 @@ fsi::Result fsi::Reader::read(uint8_t* data)
 		break;
 	}
 	default:
+		progressThread.join();
 		close();
 		return Result::Code::WrongFormatVersion;
 	}
 
+	progressThread.join(true);
+	close();
 	return Result::Code::Success;
 }
 

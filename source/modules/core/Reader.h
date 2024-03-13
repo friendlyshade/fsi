@@ -11,6 +11,7 @@
 #include "Depth.h"
 #include "FormatVersion.h"
 #include "Header.h"
+#include "ProgressThread.h"
 #include "Result.h"
 #include <filesystem>
 #include <fstream>
@@ -27,7 +28,8 @@ public:
 
 	Result open(const std::filesystem::path& path);
 
-	Result read(uint8_t* data);
+	Result read(uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
 
