@@ -11,10 +11,11 @@ Friendly Shade Image Format (FSI for short) is a modern, future-proof image file
 ## Support
 For questions about implementation, please contact us at [https://friendlyshade.com/contact](https://friendlyshade.com/contact)
 
-## FSI v2
+## Specification
+### FSI v2
 All data should be read/written in little-endian byte order.
 
-### Header Section
+#### Header Section
 
 | Description                     |    Required Value / Range    |   Size                 |
 | :---                            |            :---:             |   :---                 |
@@ -28,9 +29,9 @@ All data should be read/written in little-endian byte order.
 | Image channel count             |   1..2^20-1 (0..1,048,575)   |   8 bytes (uint64_t)   |
 | [Image depth](#image-depth)     |            1..10             |   1 byte (uint8_t)     |
 
-#### Image depth
+##### Image depth
 
-##### Signed
+###### Signed
 
 | Value | Data Type |
 | :---  | :--       |
@@ -39,7 +40,7 @@ All data should be read/written in little-endian byte order.
 | 3     | int32_t   |
 | 4     | int64_t   |
 
-##### Unsigned Integers
+###### Unsigned Integers
 
 | Value | Data Type |
 | :---  | :--       |
@@ -48,23 +49,23 @@ All data should be read/written in little-endian byte order.
 | 7     | uint32_t  |
 | 8     | uint64_t  |
 
-##### Floating-point
+###### Floating-point
 
 | Value | Data Type |
 | :---  | :--       |
 | 9     | float     |
 | 10    | double    |
 
-### Data Section
+#### Data Section
 - Data is stored in interleaved/packed order = RGB RGB RGB, etc.
 
 - Total size of the data in bytes = width * height * channels * [sizeof_data_type_in_bytes](#image-depth).
 
 - It's recommended to read this section in chunks for efficiency, and then reinterpret it as an array of the data type of the [Image depth](#image-depth) of the image.
 
-## FSI v1
+### FSI v1
 
-### Header Section
+#### Header Section
 
 | Description                     | Required Value             |   Size                 |
 | :---                            |            :---:           |   :---                 |
@@ -78,9 +79,9 @@ All data should be read/written in little-endian byte order.
 | Image channel count             |  1..2^20-1 (0..1,048,575)  |   4 bytes (uint32_t)   |
 | Image depth                     |            1..10           |   4 bytes (uint32_t)   |
 
-#### Image depth
+##### Image depth
 
-##### Signed
+###### Signed
 
 | Value | Data Type |
 | :---  | :--       |
@@ -89,7 +90,7 @@ All data should be read/written in little-endian byte order.
 | 3     | int32_t   |
 | 4     | int64_t   |
 
-##### Unsigned Integers
+###### Unsigned Integers
 
 | Value | Data Type |
 | :---  | :--       |
@@ -98,14 +99,14 @@ All data should be read/written in little-endian byte order.
 | 7     | uint32_t  |
 | 8     | uint64_t  |
 
-##### Floating-point
+###### Floating-point
 
 | Value | Data Type |
 | :---  | :--       |
 | 9     | float     |
 | 10    | double    |
 
-### Data Section
+#### Data Section
 - Data is stored in interleaved/packed order = RGB RGB RGB, etc.
 
 - Total size of the data in bytes = width * height * channels * sizeof_data_type_in_bytes.
