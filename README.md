@@ -112,3 +112,27 @@ All data should be read/written in little-endian byte order.
 - Total size of the data in bytes = width * height * channels * sizeof_data_type_in_bytes.
 
 - It's recommended to read this section in chunks for efficiency, and then reinterpret it as an array of the data type of the Image depth of the image.
+
+## Implementation Usage Examples
+### Read
+Simple read operation excluding error handling
+```cpp
+#include <friendlyshade/fsi/core/Depth.h>
+#include <friendlyshade/fsi/core/Header.h>
+#include <friendlyshade/fsi/core/Reader.h>
+
+int main()
+{
+  using fsi::Reader;
+  using fsi::Header;
+  
+  Reader reader;
+  reader.open("path/to/image.fsi");
+  Header header = reader.header();
+  Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
+  reader.read(image.data);
+  reader.close();
+
+  return 0;
+}
+```
