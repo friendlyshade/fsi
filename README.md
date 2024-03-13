@@ -1,5 +1,5 @@
 # Friendly Shade Image Format
-Official repository for the FSI file format specification and basic IO implementation written in C++17.
+Official repository for the FSI file format specification and IO implementation written in C++17.
 
 ## Why?
 
