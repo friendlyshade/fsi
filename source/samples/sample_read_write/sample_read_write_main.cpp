@@ -5,9 +5,10 @@
 // FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
 // file, you can obtain one at https://opensource.org/license/mit.
 
+#include "../../modules/core/Depth.h"
+#include "../../modules/core/ProgressThread.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
-#include "../../modules/core/Depth.h"
 #include "../../modules/global.h"
 #include <iostream>
 #include <string>
@@ -66,6 +67,37 @@ void invertColor(uint64_t width, uint64_t height, uint64_t channels, fsi::Depth 
 	}
 }
 
+void updateProgressBar(
+	int tick,
+	int total,
+	int width)
+{
+	// Erase entire line and return cursor to the start of the line
+	printf("\33[2K\r");
+
+	// Important: the progress has to be set to 100 at some point before trying to print
+	// anything else. Othwerwise it will be all merged with whatever it's printed during
+	// the "progress". So, make sure to call progressBar(100, 100) before printing
+	// anything else to the console.
+
+	float ratio = 100.0f * tick / total;
+	float count = (float)width * (float)tick / (float)total;
+	std::string bar(width, ' ');
+	std::fill(bar.begin(), bar.begin() + (int64_t)count, '|');
+	printf("[%s] [ %4.2f %% ] %c",
+		bar.c_str(),
+		ratio,
+		tick == total ? '\n' : '\r');
+	std::fflush(stdout);
+}
+
+fsi::ProgressThread::StateRequest progressCallback(void* opaquePointer, float progress)
+{
+	updateProgressBar((int)(progress * 100.0f), 100, 50);
+
+	return fsi::ProgressThread::StateRequest::NoAction;
+}
+
 int main()
 {
 	using std::cout;
@@ -93,7 +125,7 @@ int main()
 
 	Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
 
-	result = reader.read(image.data);
+	result = reader.read(image.data, progressCallback);
 	if (result != fsi::Result::Code::Success)
 	{
 		cout << result.message() << "\n";
@@ -137,7 +169,7 @@ int main()
 		return 1;
 	}
 
-	result = writer.write(&image.data[0]);
+	result = writer.write(&image.data[0], progressCallback);
 	if (result != fsi::Result::Code::Success)
 	{
 		cout << result.message() << "\n";

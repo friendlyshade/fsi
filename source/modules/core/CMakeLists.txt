@@ -15,6 +15,8 @@ helper_add_library(core
 		"Depth.h"
 		"FormatVersion.h"
 		"Header.h"
+		"ProgressThread.h"
+		"ProgressThread.hpp"
 		"Reader.h"
 		"Reader.hpp"
 		"Result.h"
@@ -22,6 +24,7 @@ helper_add_library(core
 		"Writer.h"
 		"Writer.hpp"
 	SOURCES
+		"src/ProgressThread.cpp"
 		"src/Reader.cpp"
 		"src/Result.cpp"
 		"src/Writer.cpp"
