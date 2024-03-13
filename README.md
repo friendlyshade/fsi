@@ -11,7 +11,10 @@ Friendly Shade Image Format (FSI for short) is a modern, future-proof image file
 ## Support
 For questions about implementation, please contact us at [https://friendlyshade.com/contact](https://friendlyshade.com/contact)
 
-## Implementation Usage Examples
+## Implementation
+A C++17 implementation for encoding/decoding this format is also available as shared, static or even as a header-only library. It supports callbacks for reporting progress, canceling or even pausing read and write operations (see "sample_read_write" example for more details).
+
+## API Usage Examples
 ### Read
 Simple read operation excluding error handling
 ```cpp
