@@ -66,17 +66,17 @@ All data should be read/written in little-endian byte order.
 
 ### Header Section
 
-| Description                     | Required Value          |   Size                 |
-| :---                            |          :---:          |   :---                 |
-| Format signature                |           'f'           |   1 byte (char)        |
-| Format signature                |           's'           |   1 byte (char)        |
-| Format signature                |           'i'           |   1 byte (char)        |
-| Format signature                |           'f'           |   1 byte (char)        |
-| Format version                  |            1            |   4 bytes (uint32_t)   |
-| Image width                     |     (not specified)     |   4 bytes (uint32_t)   |
-| Image height                    |     (not specified)     |   4 bytes (uint32_t)   |
-| Image channel count             |     (not specified)     |   4 bytes (uint32_t)   |
-| Image depth                     |     (not specified)     |   4 bytes (uint32_t)   |
+| Description                     | Required Value             |   Size                 |
+| :---                            |            :---:           |   :---                 |
+| Format signature                |             'f'            |   1 byte (char)        |
+| Format signature                |             's'            |   1 byte (char)        |
+| Format signature                |             'i'            |   1 byte (char)        |
+| Format signature                |             'f'            |   1 byte (char)        |
+| Format version                  |              1             |   4 bytes (uint32_t)   |
+| Image width                     |  1..2^20-1 (0..1,048,575)  |   4 bytes (uint32_t)   |
+| Image height                    |  1..2^20-1 (0..1,048,575)  |   4 bytes (uint32_t)   |
+| Image channel count             |  1..2^20-1 (0..1,048,575)  |   4 bytes (uint32_t)   |
+| Image depth                     |            1..10           |   4 bytes (uint32_t)   |
 
 #### Image depth
 
