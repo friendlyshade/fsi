@@ -1,5 +1,5 @@
-// © 2023 Friendly Shade, Inc.
-// © 2023 Sebastian Zapata
+// Â© 2023 Friendly Shade, Inc.
+// Â© 2023 Sebastian Zapata
 //
 // This file is part of FSI.
 // FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
