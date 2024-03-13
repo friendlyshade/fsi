@@ -136,3 +136,31 @@ int main()
   return 0;
 }
 ```
+
+### Write
+Simple write operation excluding error handling
+```cpp
+#include <friendlyshade/fsi/core/Depth.h>
+#include <friendlyshade/fsi/core/Header.h>
+#include <friendlyshade/fsi/core/Writer.h>
+
+int main()
+{
+  using fsi::Writer;
+  using fsi::Header;
+    
+  Writer writer;
+  Header header;
+  header.width = image.width;
+  header.height = image.height;
+  header.channels = image.channels;
+  header.depth = image.depth;
+  
+  writer.open("path/to/image.fsi", header, fsi::FormatVersion::Latest);
+  writer.write(image.data);
+  writer.close();
+  
+  return 0;
+}
+```
+
