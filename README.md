@@ -37,7 +37,7 @@ int main()
   return 0;
 }
 ```
-Note that calling `close()` is optional. If it's not explicitly called, it will be invoked automatically during the Reader object destruction. However, the file will remain locked by the application until then.
+Note that calling `Reader::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Reader` object. However, the file will remain locked by the application until then.
 
 ### Write
 Simple write operation excluding error handling
@@ -65,7 +65,7 @@ int main()
   return 0;
 }
 ```
-Note that calling `close()` is optional. If it's not explicitly called, it will be invoked automatically during the Writer object destruction. However, the file will remain locked by the application until then.
+Note that calling `Writer::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Writer` object. However, the file will remain locked by the application until then.
 
 ## Specification
 ### FSI v2
