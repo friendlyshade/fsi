@@ -14,6 +14,8 @@ For questions about implementation, please contact us at [https://friendlyshade.
 ## Implementation
 A C++17 implementation for encoding/decoding this format is also available as shared, static or even as a header-only library. It supports callbacks for reporting progress, canceling or even pausing read and write operations (see "sample_read_write" example for more details).
 
+**Please note that this implementation does not account for endianness; it assumes operation on a little-endian computer.**
+
 ## API Usage Examples
 ### Read
 Simple read operation excluding error handling
@@ -37,7 +39,7 @@ int main()
   return 0;
 }
 ```
-Note that calling `Reader::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Reader` object. However, the file will remain locked by the application until then.
+**Note that calling `Reader::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Reader` object. However, the file will remain locked by the application until then.**
 
 ### Write
 Simple write operation excluding error handling
@@ -65,7 +67,7 @@ int main()
   return 0;
 }
 ```
-Note that calling `Writer::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Writer` object. However, the file will remain locked by the application until then.
+**Note that calling `Writer::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Writer` object. However, the file will remain locked by the application until then.**
 
 ## Specification
 ### FSI v2
