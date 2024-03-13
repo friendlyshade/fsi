@@ -115,6 +115,7 @@ All data should be read/written in little-endian byte order.
 - It's recommended to read this section in chunks for efficiency, and then reinterpret it as an array of the data type of the [Image depth](#image-depth) of the image.
 
 ### FSI v1
+All data should be read/written in little-endian byte order.
 
 #### Header Section
 
