@@ -52,6 +52,9 @@ int main()
 {
   using fsi::Writer;
   using fsi::Header;
+  using fsi::Depth;
+
+  Image image(1024, 1024, 3, Depth::Uint16);
     
   Writer writer;
   Header header;
