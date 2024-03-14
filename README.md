@@ -92,7 +92,7 @@ All data should be read/written in little-endian byte order.
 
 ##### Image depth
 
-###### Signed
+###### Signed Integers
 
 | Value | Data Type |
 | :---  | :--       |
