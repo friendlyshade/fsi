@@ -3,10 +3,10 @@ Official repository for the FSI file format specification and IO implementation 
 
 ## Why?
 
-Friendly Shade Image Format (FSI for short) is a modern, future-proof image file format designed in 2022 by Sebastian Zapata from Friendly Shade. We are releasing this with the hope that 3d and image editing software companies will implement it, so we no longer struggle with the rather limited and ancient file formats such as EXR, TIF, PNG, etc. It supports images up to 1,048,575 by 1,048,575 pixels and 1,048,575 channels. It also supports 8, 16, 32 and 64 bit-depths as signed and unsigned integers, as well as 32 and 64-bit floating-point data types. These are the two main goals:
+Friendly Shade Image Format (FSI for short) is a modern, future-proof image file format designed in 2022 by Sebastian Zapata from Friendly Shade. We are releasing this with the hope that 3D and image editing software companies will implement it, so we no longer struggle with the rather limited and ancient file formats such as EXR, TIF, PNG, etc. It supports images up to 1,048,575 by 1,048,575 pixels and 1,048,575 channels. It also supports 8, 16, 32 and 64 bit-depths as signed and unsigned integers, as well as 32 and 64-bit floating-point data types. These are the two main goals:
 
 - Having a simpler image file format without layers, tags or other convoluted features for simple texturing and rendering tasks.
-- Sharing 2d image data across software without file size, resolution, bit-depth or channel-count limitations.
+- Sharing 2D image data across software without file size, resolution, bit-depth or channel-count limitations.
 
 ## Support
 For questions about implementation, please contact us at [https://friendlyshade.com/contact](https://friendlyshade.com/contact)
