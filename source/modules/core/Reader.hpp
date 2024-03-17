@@ -23,7 +23,7 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
-		return Result::Code::WrongFileExtension;
+		return Result::Code::InvalidFileExtension;
 
 	// Store path
 	m_path = path;
@@ -31,7 +31,7 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	// Open file
 	m_file = std::ifstream(path, std::ios::binary);
 	if (m_file.fail())
-		return Result::Code::FailedToOpen;
+		return Result::Code::FailedToOpenFile;
 
 	// Read and check signature
 	const uint8_t formatSignature[sizeof(expectedFormatSignature)] = {};
@@ -43,7 +43,7 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 			if (formatSignature[c] != expectedFormatSignature[c])
 			{
 				close();
-				return Result::Code::WrongSignature;
+				return Result::Code::InvalidSignature;
 			}
 		}
 	}
@@ -69,25 +69,25 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 		if (!(channels >= 1 && channels <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(width >= 1 && width <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(height >= 1 && height <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongHeight, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(depth >= 1 && depth <= 10))
 		{
 			close();
-			return { Result::Code::WrongDepth, "Must be an integer between 1 and 10" };
+			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 		}
 
 		m_header.width = width;
@@ -112,25 +112,25 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 		if (!(channels >= 1 && channels <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(width >= 1 && width <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(height >= 1 && height <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongHeight, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(depth >= 1 && depth <= 10))
 		{
 			close();
-			return { Result::Code::WrongDepth, "Must be an integer between 1 and 10" };
+			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 		}
 
 		m_header.width = static_cast<uint64_t>(width);
@@ -142,7 +142,7 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	}
 	default:
 		close();
-		return Result::Code::WrongFormatVersion;
+		return Result::Code::InvalidFormatVersion;
 	}
 
 	return Result::Code::Success;
@@ -213,7 +213,7 @@ fsi::Result fsi::Reader::read(uint8_t* data, ProgressThread::ReportProgressCB re
 	default:
 		progressThread.join();
 		close();
-		return Result::Code::WrongFormatVersion;
+		return Result::Code::InvalidFormatVersion;
 	}
 
 	progressThread.join(true);
