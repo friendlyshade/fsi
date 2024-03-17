@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../fsi_core_exports.h"
+#include "fsi_core_exports.h"
 #include "Depth.h"
 #include "FormatVersion.h"
 #include "Header.h"
