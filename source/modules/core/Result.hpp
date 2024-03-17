@@ -10,39 +10,39 @@
 #include "Result.h"
 #include <assert.h>
 
-
+inline
 fsi::Result::Result()
 	: m_code(Code::Success)
 	, m_messageDetails("")
 {
 }
 
-
+inline
 fsi::Result::Result(Code code)
 	: m_code(code)
 	, m_messageDetails("")
 {
 }
 
-
+inline
 fsi::Result::Result(Code code, const std::string& messageDetails)
 	: m_code(code)
 	, m_messageDetails(messageDetails)
 {
 }
 
-
+inline
 fsi::Result::~Result()
 {
 }
 
-
+inline
 fsi::Result::Code fsi::Result::code() const
 {
 	return m_code;
 }
 
-
+inline
 std::string fsi::Result::message() const
 {
 	std::string message;
@@ -92,7 +92,7 @@ std::string fsi::Result::message() const
 	return message + (m_messageDetails.empty() ? "" : ": ") + m_messageDetails;
 }
 
-
+inline
 void fsi::Result::setMessageDetails(const std::string& messageDetails)
 {
 	m_messageDetails = messageDetails;

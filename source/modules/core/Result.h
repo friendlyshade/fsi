@@ -10,7 +10,6 @@
 #include "fsi_core_exports.h"
 #include <string>
 
-
 namespace fsi { class Result; }
 
 class FSI_CORE_API fsi::Result
