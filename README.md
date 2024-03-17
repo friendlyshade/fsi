@@ -73,7 +73,7 @@ int main()
 **Note that calling `Writer::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Writer` object. However, the file will remain locked by the application until then.**
 
 ## Specification
-### FSI v2
+### FSI v2 (latest)
 All data should be read/written in little-endian byte order.
 
 #### Header Section
