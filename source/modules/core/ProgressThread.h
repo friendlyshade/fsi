@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../fsi_core_exports.h"
+#include "fsi_core_exports.h"
 #include "../global.h"
 #include <thread>
 #include <functional>
