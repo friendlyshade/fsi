@@ -12,13 +12,16 @@
 #include <iostream>
 #include <atomic>
 
+inline
 fsi::Reader::Reader() {}
 
+inline
 fsi::Reader::~Reader()
 {
 	close();
 }
 
+inline
 fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 {
 	// Check file extension
@@ -148,6 +151,7 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	return Result::Code::Success;
 }
 
+inline
 fsi::Result fsi::Reader::read(uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
 	void* reportProgressOpaquePtr)
 {
@@ -221,12 +225,14 @@ fsi::Result fsi::Reader::read(uint8_t* data, ProgressThread::ReportProgressCB re
 	return Result::Code::Success;
 }
 
+inline
 void fsi::Reader::close()
 {
 	if (m_file.is_open())
 		m_file.close();
 }
 
+inline
 fsi::Header fsi::Reader::header()
 {
 	return m_header;

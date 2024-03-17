@@ -11,7 +11,7 @@
 
 #define FSI_VERSION_MAJOR 3
 #define FSI_VERSION_MINOR 2
-#define FSI_VERSION_PATCH 0
+#define FSI_VERSION_PATCH 2
 
 // Preprocessor for string conversion
 #define FSI_TO_STRING_HELPER(x) #x

@@ -35,11 +35,9 @@ fsi::ProgressThread::ProgressThread(
 		updateFrequency);
 }
 
-
 fsi::ProgressThread::~ProgressThread()
 {
 }
-
 
 void fsi::ProgressThread::join(bool completed)
 {
@@ -49,7 +47,6 @@ void fsi::ProgressThread::join(bool completed)
 	if (completed && m_reportProgressCB)
 		m_reportProgressCB(m_reportProgressOpaquePtr, 1.0f);
 }
-
 
 void fsi::ProgressThread::updateProgress(
 	void* progressOpaquePtr,

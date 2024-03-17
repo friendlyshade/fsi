@@ -12,13 +12,16 @@
 #include <iostream>
 #include <atomic>
 
+inline
 fsi::Writer::Writer() {}
 
+inline
 fsi::Writer::~Writer()
 {
 	close();
 }
 
+inline
 fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	FormatVersion useFormatVersion)
 {
@@ -133,6 +136,7 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	return Result::Code::Success;
 }
 
+inline
 fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
 	void* reportProgressOpaquePtr)
 {
@@ -202,6 +206,7 @@ fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgre
 	return Result::Code::Success;
 }
 
+inline
 void fsi::Writer::close()
 {
 	if (m_file.is_open())
