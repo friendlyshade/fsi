@@ -24,7 +24,7 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
-		return Result::Code::WrongFileExtension;
+		return Result::Code::InvalidFileExtension;
 
 	// Set header
 	m_header = header;
@@ -38,7 +38,7 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	// Open file
 	m_file = std::ofstream(m_path, std::ios::binary);
 	if (m_file.fail())
-		return Result::Code::FailedToCreate;
+		return Result::Code::FailedToCreateFile;
 
 	// Write signature
 	m_file.write((char*)(expectedFormatSignature), sizeof(expectedFormatSignature));
@@ -59,25 +59,25 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 		if (!(channels >= 1 && channels <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(width >= 1 && width <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(height >= 1 && height <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongHeight, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(depth >= 1 && depth <= 10))
 		{
 			close();
-			return { Result::Code::WrongDepth, "Must be an integer between 1 and 10" };
+			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 		}
 
 		m_file.write((char*)(&width), sizeof(uint64_t));
@@ -97,25 +97,25 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 		if (!(channels >= 1 && channels <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(width >= 1 && width <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(height >= 1 && height <= 1048575))
 		{
 			close();
-			return { Result::Code::WrongHeight, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(depth >= 1 && depth <= 10))
 		{
 			close();
-			return { Result::Code::WrongDepth, "Must be an integer between 1 and 10" };
+			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 		}
 
 		m_file.write((char*)(&width), sizeof(uint32_t));
@@ -127,7 +127,7 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	}
 	default:
 		close();
-		return Result::Code::WrongFormatVersion;
+		return Result::Code::InvalidFormatVersion;
 	}
 
 	return Result::Code::Success;
@@ -194,7 +194,7 @@ fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgre
 	default:
 		progressThread.join();
 		close();
-		return Result::Code::WrongFormatVersion;
+		return Result::Code::InvalidFormatVersion;
 	}
 
 	progressThread.join(true);

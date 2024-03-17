@@ -53,31 +53,31 @@ std::string fsi::Result::message() const
 	case Code::Canceled:
 		message = "Canceled";
 		break;
-	case Code::WrongFormatVersion:
+	case Code::InvalidFormatVersion:
 		message = "Format version not supported or file is malformed/corrupted";
 		break;
-	case Code::WrongFileExtension:
+	case Code::InvalidFileExtension:
 		message = "\".fsi\" file extension expected";
 		break;
-	case Code::WrongSignature:
+	case Code::InvalidSignature:
 		message = "Wrong signature or file is malformed/corrupted";
 		break;
-	case Code::WrongDepth:
+	case Code::InvalidImageDepth:
 		message = "Wrong depth";
 		break;
-	case Code::WrongChannels:
+	case Code::InvalidImageChannels:
 		message = "Wrong channels";
 		break;
-	case Code::WrongWidth:
+	case Code::InvalidImageWidth:
 		message = "Wrong width";
 		break;
-	case Code::WrongHeight:
+	case Code::InvalidImageHeight:
 		message = "Wrong height";
 		break;
-	case Code::FailedToOpen:
+	case Code::FailedToOpenFile:
 		message = "File doesn't exist or could not be opened";
 		break;
-	case Code::FailedToCreate:
+	case Code::FailedToCreateFile:
 		message = "File could not be created";
 		break;
 	case Code::FileIsNotOpen:
