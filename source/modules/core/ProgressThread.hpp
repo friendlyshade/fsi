@@ -20,9 +20,6 @@ fsi::ProgressThread::ProgressThread(
 	, m_reportProgressOpaquePtr(reportProgressOpaquePtr)
 	, m_reportProgressCB(reportProgressCB)
 {
-	if (!m_reportProgressCB)
-		return;
-
 	m_thread = std::thread(
 		&fsi::ProgressThread::updateProgress, 
 		reportProgressOpaquePtr,
