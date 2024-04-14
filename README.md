@@ -99,28 +99,28 @@ All data should be read/written in little-endian byte order.
 
 ###### Signed Integers
 
-| Value | Data Type |
-| :---  | :--       |
-| 1     | int8_t    |
-| 2     | int16_t   |
-| 3     | int32_t   |
-| 4     | int64_t   |
+| Value | Data Type | Size (in bytes) |
+| :---  | :---      |      :---:      |
+| 1     | int8_t    |        1        |
+| 2     | int16_t   |        2        |
+| 3     | int32_t   |        4        |
+| 4     | int64_t   |        8        |
 
 ###### Unsigned Integers
 
-| Value | Data Type |
-| :---  | :--       |
-| 5     | uint8_t   |
-| 6     | uint16_t  |
-| 7     | uint32_t  |
-| 8     | uint64_t  |
+| Value | Data Type | Size (in bytes) |
+| :---  | :---      |      :---:      |
+| 5     | uint8_t   |        1        |
+| 6     | uint16_t  |        2        |
+| 7     | uint32_t  |        4        |
+| 8     | uint64_t  |        8        |
 
 ###### Floating-point
 
-| Value | Data Type |
-| :---  | :--       |
-| 9     | float     |
-| 10    | double    |
+| Value | Data Type | Size (in bytes) |
+| :---  | :---      |      :---:      |
+| 9     | float     |        4        |
+| 10    | double    |        8        |
 
 #### Data Section
 
@@ -155,28 +155,28 @@ All data should be read/written in little-endian byte order.
 
 ###### Signed Integers
 
-| Value | Data Type |
-| :---  | :--       |
-| 1     | int8_t    |
-| 2     | int16_t   |
-| 3     | int32_t   |
-| 4     | int64_t   |
+| Value | Data Type | Size (in bytes) |
+| :---  | :---      |      :---:      |
+| 1     | int8_t    |        1        |
+| 2     | int16_t   |        2        |
+| 3     | int32_t   |        4        |
+| 4     | int64_t   |        8        |
 
 ###### Unsigned Integers
 
-| Value | Data Type |
-| :---  | :--       |
-| 5     | uint8_t   |
-| 6     | uint16_t  |
-| 7     | uint32_t  |
-| 8     | uint64_t  |
+| Value | Data Type | Size (in bytes) |
+| :---  | :---      |      :---:      |
+| 5     | uint8_t   |        1        |
+| 6     | uint16_t  |        2        |
+| 7     | uint32_t  |        4        |
+| 8     | uint64_t  |        8        |
 
 ###### Floating-point
 
-| Value | Data Type |
-| :---  | :--       |
-| 9     | float     |
-| 10    | double    |
+| Value | Data Type | Size (in bytes) |
+| :---  | :---      |      :---:      |
+| 9     | float     |        4        |
+| 10    | double    |        8        |
 
 #### Data Section
 - Data is stored in interleaved/packed order = RGB RGB RGB, etc.
