@@ -80,7 +80,7 @@ int main()
 This allows to quickly add, modify or remove a thumbnail from a file without having to alter its structure. Offsetting the image data after prepending thumbnail data virtually means rewriting the entire file.
 
 #### Why is the thumbnail data section not included at the end of the file but before the image data section instead?
-For programs that require only the thumbnail instead of the image data (e.g., a Windows shell extension), it is more efficient to have this data located before the image data section. This approach helps avoiding potential/unnecessary delays with large images because of the file system needing to perform additional seeks to reach the thumbnail data.
+For programs that require only the thumbnail instead of the image data (e.g., a Windows shell extension), it is more efficient to have this data located before the image data section. Placing the thumbnail data first in the file ensures that it can be easily and efficiently accessed without the need to skip over large portions of the file.
   
 ### FSI v2 (experimental)
 All data should be read/written in little-endian byte order.
