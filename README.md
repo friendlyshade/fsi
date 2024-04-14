@@ -85,10 +85,11 @@ All data should be read/written in little-endian byte order.
 | Format signature                |             'i'              |   1 byte (char)        |
 | Format signature                |             'f'              |   1 byte (char)        |
 | Format version                  |              2               |   4 bytes (uint32_t)   |
-| Image width                     |   1..2^20-1 (0..1,048,575)   |   8 bytes (uint64_t)   |
-| Image height                    |   1..2^20-1 (0..1,048,575)   |   8 bytes (uint64_t)   |
-| Image channel count             |   1..2^20-1 (0..1,048,575)   |   8 bytes (uint64_t)   |
+| Image width                     |   1..2^20-1 (0..1,048,575)   |   4 bytes (uint32_t)   |
+| Image height                    |   1..2^20-1 (0..1,048,575)   |   4 bytes (uint32_t)   |
+| Image channel count             |   1..2^20-1 (0..1,048,575)   |   4 bytes (uint32_t)   |
 | [Image depth](#image-depth)     |            1..10             |   1 byte (uint8_t)     |
+| Has thumbnail                   |  0 or 1 (non-zero for true)  |   1 byte (uint8_t)     |
 
 ##### Image depth
 
@@ -118,10 +119,14 @@ All data should be read/written in little-endian byte order.
 | 10    | double    |
 
 #### Data Section
-- Data is stored in interleaved/packed order = RGB RGB RGB, etc.
 
+##### Thumbnail Data
+- Thumbnail data is RGBA (4 channels) at 8-bit (unsigned) and dimensions are 256 x 256 pixels (262,144 bytes)
+- Thumbnail data is stored in interleaved/packed order = RGBA RGBA RGBA, etc.
+
+##### Image Data
+- Image data is stored in interleaved/packed order = RGB RGB RGB, etc.
 - Total size of the data in bytes = width * height * channels * [sizeof_data_type_in_bytes](#image-depth).
-
 - It's recommended to read this section in chunks for efficiency, and then reinterpret it as an array of the data type of the [Image depth](#image-depth) of the image.
 
 ### FSI v1 (latest official)
