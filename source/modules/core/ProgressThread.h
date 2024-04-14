@@ -44,6 +44,8 @@ public:
 	 */
 	typedef std::function<StateRequest(void* opaquePointer, float progress)> ReportProgressCB;
 
+private:
+
 	// Function that is run when progress is required
 	typedef std::function<float()> CalcProgressCB;
 
