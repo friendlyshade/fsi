@@ -62,7 +62,7 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 		if (!(channels >= 1 && channels <= 1048575))
 		{
 			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(width >= 1 && width <= 1048575))
@@ -100,7 +100,7 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 		if (!(channels >= 1 && channels <= 1048575))
 		{
 			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
+			return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
 		}
 
 		if (!(width >= 1 && width <= 1048575))
