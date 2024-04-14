@@ -29,7 +29,18 @@ public:
 	Result open(const std::filesystem::path& path, Header header,
 		FormatVersion useFormatVersion = FormatVersion::Latest);
 
-	Result write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+	/** @brief Write image data to FSI file.
+
+	The function writes the image bytes and optionally a thumbnail to the file.
+
+	@param data The image data.
+	@param reportProgressCB The function is called when the progress of the operation is updated. It
+	which can additionally be used for pausing, resuming and canceling the operation.
+	@param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
+	of an instance of opaquePointer is required.
+	 */
+	Result write(const uint8_t* data,
+		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
