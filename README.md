@@ -80,6 +80,12 @@ int main()
 ### FSI v2 (experimental)
 All data should be read/written in little-endian byte order.
 
+#### General File Structure
+| Description                                                                   |          Size (in bytes)          |
+| :---                                                                          |               :---:               |
+| [Header Section](#header-section)                                             |                22                 |
+| [Data Section](#data-section)<br/>&emsp; Thumbnail Data<br/>&emsp; Image Data | Variable<br/>262,144<br/>Variable |
+
 #### Header Section
 
 | Description                     |    Required Value / Range    |   Size                 |
