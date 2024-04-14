@@ -127,6 +127,7 @@ All data should be read/written in little-endian byte order.
 ##### Thumbnail Data
 - Thumbnail data is RGBA (4 channels) at 8-bit (unsigned) and dimensions are 256 x 256 pixels (262,144 bytes)
 - Thumbnail data is stored in interleaved/packed order = RGBA RGBA RGBA, etc.
+- If no thumbnail is present, the entire section is zeroed (all bytes are 0).
 
 ##### Image Data
 - Image data is stored in interleaved/packed order = RGB RGB RGB, etc.
