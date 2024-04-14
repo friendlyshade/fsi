@@ -73,7 +73,7 @@ int main()
 **Note that calling `Writer::close()` is optional. If it's not explicitly called, it will be invoked automatically during the destruction of the `Writer` object. However, the file will remain locked by the application until then.**
 
 ## Specification
-### FSI v2 (latest)
+### FSI v2 (experimental)
 All data should be read/written in little-endian byte order.
 
 #### Header Section
@@ -124,7 +124,7 @@ All data should be read/written in little-endian byte order.
 
 - It's recommended to read this section in chunks for efficiency, and then reinterpret it as an array of the data type of the [Image depth](#image-depth) of the image.
 
-### FSI v1
+### FSI v1 (latest official)
 All data should be read/written in little-endian byte order.
 
 #### Header Section
