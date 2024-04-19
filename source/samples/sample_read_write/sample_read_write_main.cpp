@@ -105,7 +105,8 @@ int main()
 
 	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
 	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-rgb-16-bit.fsi";
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
+	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-924x2000px-2channels-16-bit.fsi";
+	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
 	std::filesystem::path outPath = "../../extras/samples/stone-wall-7/output.fsi";
 
 	fsi::Result result;

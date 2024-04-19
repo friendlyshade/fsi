@@ -24,6 +24,8 @@ helper_add_executable(sample_read_write
 set(SAMPLE_FILES
 	# ----- stone-wall-7 -----
     "stone-wall-7/input.fsi"
+	# ----- 2-channel-image -----
+    "2-channel-image/924x2000px_2C_16bit.fsi"
 )
 foreach(FILE ${SAMPLE_FILES})
     get_filename_component(source_path "${CMAKE_SOURCE_DIR}/../extras/samples/${FILE}" ABSOLUTE)
