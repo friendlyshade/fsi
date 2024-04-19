@@ -9,6 +9,7 @@
 
 #include "proc.h"
 #include <algorithm>
+#include <iostream>
 
 template <typename Src_T>
 inline
@@ -49,36 +50,56 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, cons
 	const int64_t dst_h = static_cast<int64_t>(targetHeight);
 	const int64_t src_hs = src_h * src_s;
 	const int64_t dst_hs = dst_h * dst_s;
+	const int64_t src_C = static_cast<int64_t>(srcHeader.channels);
 	const int64_t src_wc = src_w * static_cast<int64_t>(srcHeader.channels);
 	const int64_t dst_wc = dst_w * static_cast<int64_t>(Dst_C);
+	const int64_t src_end = static_cast<int64_t>(src_h*src_s);
 
 	const Src_T* src_ptr = reinterpret_cast<const Src_T*>(srcData);
 	Dst_T* dst_ptr = reinterpret_cast<Dst_T*>(dstData);
 
-	float width_factor = static_cast<float>(dst_w) / static_cast<float>(src_w);
-	float height_factor = static_cast<float>(dst_h) / static_cast<float>(src_h);
+	float width_factor = static_cast<float>(src_w) / static_cast<float>(dst_w);
+	float height_factor = static_cast<float>(src_h) / static_cast<float>(dst_h);
 	
-	assert(width_factor <= 1.0f && "width_factor must be less or equal to 1");
-	assert(height_factor <= 1.0f && "height_factor must be less or equal to 1");
+	assert(width_factor >= 1.0f && "width_factor must be greater or equal to 1");
+	assert(height_factor >= 1.0f && "height_factor must be greater or equal to 1");
 
-	const int64_t kernel_width = round(1.0f / width_factor);
-	const int64_t kernel_height = round(1.0f / height_factor);
-	const int64_t kernel_size = kernel_width*kernel_height;
+	const int64_t kernel_width = round(width_factor);
+	const int64_t kernel_height = round(height_factor);
+	const double kernel_size = static_cast<double>(kernel_width*kernel_height);
+
+	std::cout << "src_end: " << src_end << "\n";
+	std::cout << "src_C: " << src_C << "\n";
 
 #pragma omp parallel for
-	for (int64_t dst_ys = 0; dst_ys < dst_hs; dst_ys += dst_s)
+	for (int64_t dst_y = 0; dst_y < dst_h; dst_y++)
 	{
-		int64_t src_y = static_cast<int64_t>(floor((dst_ys / dst_s) / height_factor));
+		int64_t src_y = static_cast<int64_t>(floor(dst_y * height_factor));
 		src_y = min(src_y, src_h - 1);
 
-		for (int64_t dst_xc = 0; dst_xc < dst_wc; dst_xc += Dst_C)
+		for (int64_t dst_x = 0; dst_x < dst_w; dst_x++)
 		{
-			int64_t src_x = static_cast<int64_t>(floor((dst_xc / Dst_C) / width_factor));
+			int64_t src_x = static_cast<int64_t>(floor(dst_x * width_factor));
 			src_x = min(src_x, src_w - 1);
 
 			for (int64_t c = 0; c < Dst_C; c++)
 			{
-				const int64_t dst_idx = dst_ys + dst_xc + c;
+				const int64_t dst_idx = dst_y*dst_s + dst_x*Dst_C + c;
+
+				// Handle missing channels for images with less than 4 channels
+				if (c >= src_C)
+				{
+					Dst_T val;
+
+					if (c == 4)
+						val = dst_max; // Opaque if it's the alpha channel
+					else
+						val = dst_min; // Black otherwise
+
+					dst_ptr[dst_idx] = val;
+
+					continue;
+				}
 
 				int64_t dst_size = static_cast<int64_t>((targetHeight*targetWidth + targetWidth)*Dst_C);
 
@@ -89,21 +110,31 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, cons
 				for (int64_t ky = 0; ky < kernel_height; ++ky)
 				for (int64_t kx = 0; kx < kernel_width; ++kx)
 				{
-					const int64_t src_idx = (src_y + ky)*src_s + (src_x + kx)*Dst_C + c;
+					const int64_t src_idx = (src_y + ky)*src_s + (src_x + kx)*src_C + c;
 
-					int64_t src_size = static_cast<int64_t>((srcHeader.height*srcHeader.width
-						+ srcHeader.width) * srcHeader.channels);
+					if (src_idx >= src_end)
+					{
+						std::cout << "c: " << c << "\n";
+						std::cout << "src_s: " << src_s << "\n";
+						std::cout << "src_y: " << src_y << "\n";
+						std::cout << "src_x: " << src_x << "\n";
+						std::cout << "ky: " << ky << "\n";
+						std::cout << "kx: " << kx << "\n";
+						std::cout << "src_idx: " << src_idx << "\n";
+						exit(1);
+					}
 
 					assert((src_idx >= 0) && "src out of range");
-					assert((src_idx < src_size) && "src out of range");
+					assert((src_idx < src_end) && "src out of range");
 
 					accum += static_cast<double>(src_ptr[src_idx]);
 				}
 
-				dst_ptr[dst_idx] = static_cast<Dst_T>(
-						clamp(remap(accum / static_cast<double>(kernel_size),
-							src_min, src_max, dst_min, dst_max), dst_min, dst_max)
-					);
+					dst_ptr[dst_idx] = static_cast<Dst_T>(
+						clamp(remap(accum / kernel_size, src_min, src_max, dst_min, dst_max),
+							dst_min, dst_max)
+						);
+				// dst_ptr[dst_idx] = 128;
 			}
 		}
 	}
