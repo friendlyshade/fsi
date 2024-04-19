@@ -6,7 +6,7 @@
 // file, you can obtain one at https://opensource.org/license/mit.
 
 #pragma once
-#include "Depth.h"
+#include "Depth.hpp"
 
 namespace fsi { struct Header; }
 

@@ -19,6 +19,6 @@ const std::string expectedFileExtension = ".fsi";
 
 const uint64_t defaultBufferSize = 1024*1024; // in bytes
 
-const uint64_t PROGRESS_CALLBACK_CALL_INTERVAL = 250; // in ms
+const uint64_t progressCallbackInterval = 100ull; // in ms
 
 }

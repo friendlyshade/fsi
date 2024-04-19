@@ -12,7 +12,7 @@ helper_add_library(core
 	LINK_SCOPE "${FSI_LINK_SCOPE}"
 	PUBLIC_HEADERS
 		"consts.h"
-		"Depth.h"
+		"Depth.hpp"
 		"FormatVersion.h"
 		"Header.h"
 		"ProgressThread.h"
@@ -23,9 +23,16 @@ helper_add_library(core
 		"Result.hpp"
 		"Writer.h"
 		"Writer.hpp"
+		"proc.h"
+		"proc.hpp"
+		"proc.tcc"
+		"Timer.h"
+		"Timer.hpp"
 	SOURCES
 		"src/ProgressThread.cpp"
 		"src/Reader.cpp"
 		"src/Result.cpp"
 		"src/Writer.cpp"
+		"src/proc.cpp"
+		"src/Timer.cpp"
 )

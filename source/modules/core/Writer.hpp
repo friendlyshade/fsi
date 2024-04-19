@@ -9,25 +9,46 @@
 
 #include "Writer.h"
 #include "consts.h"
+#include "proc.h"
 #include <iostream>
 #include <atomic>
 
-inline
+#define WRITE_THUMB_AS_FILE 1
+
+#if WRITE_THUMB_AS_FILE
+	size_t thumbWidth = 256;
+	size_t thumbHeight = 256;
+	size_t thumbChannels = 3;
+	fsi::Depth thumbDepth = fsi::Depth::Uint8;
+
+	fsi::Header originalHeader;
+#endif
+
 fsi::Writer::Writer() {}
 
-inline
 fsi::Writer::~Writer()
 {
 	close();
 }
 
-inline
 fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	FormatVersion useFormatVersion)
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
 		return Result::Code::InvalidFileExtension;
+
+#if WRITE_THUMB_AS_FILE
+	originalHeader.width = header.width;
+	originalHeader.height = header.height;
+	originalHeader.channels = header.channels;
+	originalHeader.depth = header.depth;
+
+	header.width = thumbWidth;
+	header.height = thumbHeight;
+	header.channels = thumbChannels;
+	header.depth = thumbDepth;
+#endif
 
 	// Set header
 	m_header = header;
@@ -135,10 +156,9 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 
 	return Result::Code::Success;
 }
-
-inline
-fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
-	void* reportProgressOpaquePtr)
+#include "Timer.h"
+fsi::Result fsi::Writer::write(const uint8_t* data, uint64_t step, bool thumbnail,
+	ProgressThread::ReportProgressCB reportProgressCB, void* reportProgressOpaquePtr)
 {
 	if (!m_file.is_open())
 		return Result::Code::FileIsNotOpen;
@@ -151,11 +171,43 @@ fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgre
 		[&canceled]() { canceled = true; },
 		[&paused]() { paused = true; },
 		[&paused]() { paused = false; },
-		100ull);
+		progressCallbackInterval);
+
+#if WRITE_THUMB_AS_FILE
+	uint8_t* thumbData = new uint8_t[thumbWidth * thumbHeight * thumbChannels * sizeOfDepth(thumbDepth)];
+	
+	fsi::Timer timer; timer.start();
+	proc::generateThumbnail(data, step, originalHeader, thumbData, thumbWidth, thumbHeight);
+	std::cout << "Thumbnail generated in " << timer.elapsedMs() << " ms\n";
+
+	// Temp: write thumb as the image
+	data = thumbData;
+	step = thumbWidth * thumbChannels;
+#endif
 
 	switch (m_formatVersion)
 	{
 	case FormatVersion::V2:
+	{
+		// Generate thumbnail
+		if (thumbnail)
+		{
+			/*
+			// Decide on which operation to do first based on how much memory the dst image will take
+			uint64_t sizeAfterCvtColor = m_header.width * m_header.height * 4;
+			uint64_t sizeAfterDecimate = 256 * 256 * m_header.channels;
+			
+			// Convert to RGBA first, then decimate
+			if (sizeAfterCvtColor < sizeAfterDecimate)
+			{
+			}
+			// Decimate first, then convert to RGBA
+			else
+			{
+			}
+			*/
+		}
+	}
 	case FormatVersion::V1:
 	{
 		const uint64_t depthSize = sizeOfDepth(m_header.depth);
@@ -206,7 +258,6 @@ fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgre
 	return Result::Code::Success;
 }
 
-inline
 void fsi::Writer::close()
 {
 	if (m_file.is_open())

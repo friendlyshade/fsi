@@ -5,10 +5,11 @@
 // FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
 // file, you can obtain one at https://opensource.org/license/mit.
 
-#include "../../modules/core/Depth.h"
+#include "../../modules/core/Depth.hpp"
 #include "../../modules/core/ProgressThread.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
+#include "../../modules/core/Timer.h"
 #include "../../modules/global.h"
 #include <iostream>
 #include <string>
@@ -102,7 +103,8 @@ int main()
 {
 	using std::cout;
 
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
+	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
+	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-rgb-16-bit.fsi";
 	std::filesystem::path outPath = "../../extras/samples/stone-wall-7/output.fsi";
 
 	fsi::Result result;
@@ -147,7 +149,7 @@ int main()
 	// ------------
 
 	cout << "Inverting image colors...\n";
-	invertColor(image.width, image.height, image.channels, image.depth, image.data);
+	//invertColor(image.width, image.height, image.channels, image.depth, image.data);
 	cout << "Image colors inverted\n";
 
 	// Write
@@ -169,7 +171,8 @@ int main()
 		return 1;
 	}
 
-	result = writer.write(image.data, progressCallback);
+	fsi::Timer timer; timer.start();
+	result = writer.write(image.data, image.width*image.channels, true, progressCallback);
 	if (result != fsi::Result::Code::Success)
 	{
 		cout << result.message() << "\n";
@@ -178,7 +181,7 @@ int main()
 
 	writer.close();
 
-	cout << "Output written successfully\n";
+	cout << "Output written successfully in " << timer.elapsedMs() << " ms\n";
 
 	return 0;
 }

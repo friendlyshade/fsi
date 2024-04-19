@@ -8,7 +8,7 @@
 #pragma once
 
 #include "fsi_core_exports.h"
-#include "Depth.h"
+#include "Depth.hpp"
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
