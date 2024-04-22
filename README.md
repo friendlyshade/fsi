@@ -81,13 +81,14 @@ int main()
 All data should be read/written in little-endian byte order.
 
 #### General File Structure
-| Description                                                                                                     |          Size (in bytes)          |
-| :---                                                                                                            |               :---:               |
-| [Header Section](#header-section)                                                                               |                22                 |
-| [Data Section](#data-section)<br/>&emsp; [Thumbnail Data](#thumbnail-data)<br/>&emsp; [Image Data](#image-data) | Variable<br/>262,144<br/>Variable |
+| Description                                                                                                                 |          Size (in bytes)          |
+| :---                                                                                                                        |               :---:               |
+| [Header Section](#header-section)<br/>&emsp; [Image Header](#image-header)<br/>&emsp; [Thumbnail Header](#thumbnail-header) | Variable<br/>22<br/>Variable<br/> |
+| [Data Section](#data-section)<br/>&emsp; [Thumbnail Data](#thumbnail-data)<br/>&emsp; [Image Data](#image-data)             | Variable<br/>262,144<br/>Variable |
 
 #### Header Section
 
+##### Image Header
 | Description                     |    Required Value / Range    |   Size                 |
 | :---                            |            :---:             |   :---                 |
 | Format signature                |             'f'              |   1 byte (char)        |
@@ -100,6 +101,13 @@ All data should be read/written in little-endian byte order.
 | Image channel count             |   1..2^20-1 (0..1,048,575)   |   4 bytes (uint32_t)   |
 | [Image depth](#image-depth)     |            1..10             |   1 byte (uint8_t)     |
 | Has thumbnail                   |  0 or 1 (non-zero for true)  |   1 byte (uint8_t)     |
+
+##### Thumbnail Header
+This header section is only present when "Has thumbnail" is true
+| Description                     |    Required Value / Range    |   Size                 |
+| :---                            |            :---:             |   :---                 |
+| Thumbnail width                 |            1..256            |   2 bytes (uint16_t)   |
+| Thumbnail height                |            1..256            |   2 bytes (uint16_t)   |
 
 ##### Image depth
 
