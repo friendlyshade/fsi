@@ -139,9 +139,10 @@ This header section is only present when "Has thumbnail" is true
 #### Data Section
 
 ##### Thumbnail Data
-- Thumbnail data is RGBA (4 channels) at 8-bit (unsigned) and dimensions are 256 x 256 pixels (262,144 bytes)
+- Thumbnail data section is only present when "Has thumbnail" is true.
+- Thumbnail data is RGBA (4 channels) at 8-bit (unsigned)
+- Thumbnail dimensions are specified in the [Thumbnail Header](#thumbnail-header).
 - Thumbnail data is stored in interleaved/packed order = RGBA RGBA RGBA, etc.
-- If no thumbnail is present, the entire section is zeroed (all bytes are 0).
 
 ##### Image Data
 - Image data is stored in interleaved/packed order = RGB RGB RGB, etc.
