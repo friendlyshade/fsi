@@ -9,6 +9,7 @@
 
 #include "fsi_core_exports.h"
 #include "Depth.hpp"
+#include "Writer.h"
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
@@ -16,38 +17,29 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fsi { class Reader; }
+namespace fsi { class Writer_V2; }
 
-class FSI_CORE_API fsi::Reader
+class FSI_CORE_API fsi::Writer_V2 : public Writer
 {
 public:
 
-	Reader();
-	
-	~Reader();
-
-	Result open(const std::filesystem::path& path);
-
-	Result read(uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
-		void* reportProgressOpaquePtr = nullptr);
-
-	void close();
-
-public:
-
-	Header_V1 header();
+	Writer_V2(const Header* header);
 
 private:
 
-	Header_V1 m_header;
+	Result openImpl() override;
 
-	FormatVersion m_formatVersion;
+	Result writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
+		const std::atomic<bool>& canceled, std::atomic<float>& progress) override;
 
-	std::ifstream m_file;
+	uint32_t formatVersion() const override;
 
-	std::filesystem::path m_path;
+private:
+
+	void calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight, uint16_t& thumbWidth,
+		uint16_t& thumbHeight);
 };
 
 #if FSI_CORE_HEADERONLY
-#include "Reader.hpp"
+#include "Writer_V2.hpp"
 #endif

@@ -227,7 +227,7 @@ void fsi::Reader::close()
 		m_file.close();
 }
 
-fsi::Header fsi::Reader::header()
+fsi::Header_V1 fsi::Reader::header()
 {
 	return m_header;
 }

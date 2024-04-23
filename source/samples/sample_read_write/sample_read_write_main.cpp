@@ -9,6 +9,7 @@
 #include "../../modules/core/ProgressThread.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
+#include "../../modules/core/Writer_V1.h"
 #include "../../modules/core/Timer.h"
 #include "../../modules/global.h"
 #include <iostream>
@@ -103,11 +104,34 @@ int main()
 {
 	using std::cout;
 
+	/*int* b = new int(5);
+	int* a = new int(*b);
+	// *a = *b;
+	cout << "a: " << *a << "\n";
+	return 0;
+	*/
+
+
+	/*
+	const fsi::Header* header = new fsi::Header_V2;
+	const fsi::Header& D_ptr = *header;// get a base pointer to derived type
+	const fsi::Header_V2 *derived_ptr1 = dynamic_cast<const fsi::Header_V2*>(&D_ptr);// works fine
+
+	if (derived_ptr1)
+		cout << "Yes, it was converted!\n";
+	else
+		cout << "No, could not be converted!\n";
+
+	return 0;
+	*/
+
 	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
 	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-rgb-16-bit.fsi";
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-924x2000px-2channels-16-bit.fsi";
-	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
-	std::filesystem::path outPath = "../../extras/samples/stone-wall-7/output.fsi";
+	// std::filesystem::path inPath = "../../extras/samples/2-channel-image/924x2000px_2C_16bit.fsi";
+	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
+	std::filesystem::path outV1Path = "../../extras/samples/stone-wall-7/output-v1.fsi";
+	std::filesystem::path outV2Path = "../../extras/samples/stone-wall-7/output-v2.fsi";
+	// std::filesystem::path outPath = "../../extras/samples/2-channel-image/output.fsi";
 
 	fsi::Result result;
 
@@ -125,7 +149,7 @@ int main()
 		return 1;
 	}
 
-	fsi::Header headerReader = reader.header();
+	fsi::Header_V1 headerReader = reader.header();
 
 	Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
 
@@ -159,31 +183,66 @@ int main()
 
 	cout << "Writing output...\n";
 
-	fsi::Writer writer;
-	fsi::Header headerWriter;
-	headerWriter.width = image.width;
-	headerWriter.height = image.height;
-	headerWriter.channels = image.channels;
-	headerWriter.depth = image.depth;
-
-	result = writer.open(outPath, headerWriter, fsi::FormatVersion::V1);
-	if (result != fsi::Result::Code::Success)
+	// v1
 	{
-		cout << result.message() << "\n";
-		return 1;
+		fsi::Header_V1* headerWriter;
+		headerWriter->width = image.width;
+		headerWriter->height = image.height;
+		headerWriter->channels = image.channels;
+		headerWriter->depth = image.depth;
+
+		fsi::Writer_V1 writer(headerWriter);
+
+		result = writer.open(outV1Path);
+		if (result != fsi::Result::Code::Success)
+		{
+			cout << result.message() << "\n";
+			return 1;
+		}
+
+		fsi::Timer timer; timer.start();
+		result = writer.write(image.data, progressCallback);
+		if (result != fsi::Result::Code::Success)
+		{
+			cout << result.message() << "\n";
+			return 1;
+		}
+
+		writer.close();
+
+		cout << "Output (v1) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
 
-	fsi::Timer timer; timer.start();
-	result = writer.write(image.data, image.width*image.channels, true, progressCallback);
-	if (result != fsi::Result::Code::Success)
+	// v2
 	{
-		cout << result.message() << "\n";
-		return 1;
+		std::unique_ptr<fsi::Header_V2> headerWriter;
+		headerWriter->width = image.width;
+		headerWriter->height = image.height;
+		headerWriter->channels = image.channels;
+		headerWriter->depth = image.depth;
+		headerWriter->depth = image.depth;
+
+		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(headerWriter);
+
+		result = writer->open(outV1Path);
+		if (result != fsi::Result::Code::Success)
+		{
+			cout << result.message() << "\n";
+			return 1;
+		}
+
+		fsi::Timer timer; timer.start();
+		result = writer->write(image.data, progressCallback);
+		if (result != fsi::Result::Code::Success)
+		{
+			cout << result.message() << "\n";
+			return 1;
+		}
+
+		writer->close();
+
+		cout << "Output (v2) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
-
-	writer.close();
-
-	cout << "Output written successfully in " << timer.elapsedMs() << " ms\n";
 
 	return 0;
 }

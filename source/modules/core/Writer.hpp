@@ -8,31 +8,55 @@
 #pragma once
 
 #include "Writer.h"
+#include "Writer_V1.h"
+#include "Writer_V2.h"
 #include "consts.h"
 #include "proc.h"
 #include <iostream>
 #include <atomic>
+#include <algorithm>
+#include <exception>
 
-#define WRITE_THUMB_AS_FILE 1
+#define WRITE_THUMB_AS_FILE 0
 
 #if WRITE_THUMB_AS_FILE
 	size_t thumbWidth = 256;
 	size_t thumbHeight = 256;
-	size_t thumbChannels = 3;
+	size_t thumbChannels = 4;
 	fsi::Depth thumbDepth = fsi::Depth::Uint8;
 
 	fsi::Header originalHeader;
 #endif
 
-fsi::Writer::Writer() {}
+std::unique_ptr<fsi::Writer> fsi::Writer::createWriter(const Header* header)
+{
+	const Header_V1* header_v1 = dynamic_cast<const Header_V1*>(header);
+	const Header_V2* header_v2 = dynamic_cast<const Header_V2*>(header);
+
+	if (header_v1)
+	{
+		return std::make_unique<Writer_V1>(*header_v1);
+	}
+	else if (header_v2)
+	{
+		return std::make_unique<Writer_V2>(*header_v2);
+	}
+
+	throw std::exception("Header must be castable to Header_V1 or Header_V2");
+	return nullptr;
+}
+
+fsi::Writer::Writer(const Header* header)
+	: m_header(new Header(*header))
+{
+}
 
 fsi::Writer::~Writer()
 {
 	close();
 }
 
-fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
-	FormatVersion useFormatVersion)
+fsi::Result fsi::Writer::open(const std::filesystem::path& path)
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
@@ -50,12 +74,6 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	header.depth = thumbDepth;
 #endif
 
-	// Set header
-	m_header = header;
-
-	// Set format version
-	m_formatVersion = useFormatVersion;
-
 	// Set path
 	m_path = path;
 
@@ -68,97 +86,22 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, Header header,
 	m_file.write((char*)(expectedFormatSignature), sizeof(expectedFormatSignature));
 
 	// Write version
-	m_file.write((char*)(&useFormatVersion), sizeof(uint32_t));
+	uint32_t version = formatVersion();
+	m_file.write((char*)(&version), sizeof(uint32_t));
 
 	// Read the rest of the header, immediately after the format version
-	switch (useFormatVersion)
+	Result result = openImpl();
+	if (result != Result::Code::Success)
 	{
-	case fsi::FormatVersion::V2:
-	{
-		uint64_t width = static_cast<uint64_t>(header.width);
-		uint64_t height = static_cast<uint64_t>(header.height);
-		uint64_t channels = static_cast<uint64_t>(header.channels);
-		uint8_t depth = static_cast<uint8_t>(header.depth);
-
-		if (!(channels >= 1 && channels <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(width >= 1 && width <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(height >= 1 && height <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(depth >= 1 && depth <= 10))
-		{
-			close();
-			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
-		}
-
-		m_file.write((char*)(&width), sizeof(uint64_t));
-		m_file.write((char*)(&height), sizeof(uint64_t));
-		m_file.write((char*)(&channels), sizeof(uint64_t));
-		m_file.write((char*)(&depth), sizeof(uint8_t));
-
-		break;
-	}
-	case fsi::FormatVersion::V1:
-	{
-		uint32_t width = static_cast<uint64_t>(header.width);
-		uint32_t height = static_cast<uint64_t>(header.height);
-		uint32_t channels = static_cast<uint64_t>(header.channels);
-		uint32_t depth = static_cast<uint8_t>(header.depth);
-
-		if (!(channels >= 1 && channels <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(width >= 1 && width <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(height >= 1 && height <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(depth >= 1 && depth <= 10))
-		{
-			close();
-			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
-		}
-
-		m_file.write((char*)(&width), sizeof(uint32_t));
-		m_file.write((char*)(&height), sizeof(uint32_t));
-		m_file.write((char*)(&channels), sizeof(uint32_t));
-		m_file.write((char*)(&depth), sizeof(uint32_t));
-
-		break;
-	}
-	default:
 		close();
-		return Result::Code::InvalidFormatVersion;
+		return result;
 	}
 
 	return Result::Code::Success;
 }
-#include "Timer.h"
-fsi::Result fsi::Writer::write(const uint8_t* data, uint64_t step, bool thumbnail,
-	ProgressThread::ReportProgressCB reportProgressCB, void* reportProgressOpaquePtr)
+
+fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
+	void* reportProgressOpaquePtr)
 {
 	if (!m_file.is_open())
 		return Result::Code::FileIsNotOpen;
@@ -185,72 +128,12 @@ fsi::Result fsi::Writer::write(const uint8_t* data, uint64_t step, bool thumbnai
 	step = thumbWidth * thumbChannels;
 #endif
 
-	switch (m_formatVersion)
+	Result result = writeImpl(data, paused, canceled, progress);
+	if (result != Result::Code::Success)
 	{
-	case FormatVersion::V2:
-	{
-		// Generate thumbnail
-		if (thumbnail)
-		{
-			/*
-			// Decide on which operation to do first based on how much memory the dst image will take
-			uint64_t sizeAfterCvtColor = m_header.width * m_header.height * 4;
-			uint64_t sizeAfterDecimate = 256 * 256 * m_header.channels;
-			
-			// Convert to RGBA first, then decimate
-			if (sizeAfterCvtColor < sizeAfterDecimate)
-			{
-			}
-			// Decimate first, then convert to RGBA
-			else
-			{
-			}
-			*/
-		}
-	}
-	case FormatVersion::V1:
-	{
-		const uint64_t depthSize = sizeOfDepth(m_header.depth);
-		const uint64_t imageSize = m_header.width * m_header.height * m_header.channels * depthSize;
-
-		// If buffer is larger than the total data, adjust the buffer size
-		const uint64_t bufferSize = defaultBufferSize > imageSize ? imageSize : defaultBufferSize;
-
-		// Write chunks of bytes
-		size_t ptr_offset = 0;
-		const size_t total = imageSize - bufferSize;
-		for (; ptr_offset < total; ptr_offset += bufferSize)
-		{
-			while (paused)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			}
-
-			if (canceled)
-			{
-				progressThread.join();
-				close();
-				return Result::Code::Canceled;
-			}
-
-			m_file.write((char*)(data + ptr_offset), bufferSize);
-
-			progress = static_cast<float>(ptr_offset) / static_cast<float>(total);
-		}
-
-		// Write remaining bytes (if any)
-		size_t remainder_size = imageSize % bufferSize;
-		if (remainder_size == 0)
-			remainder_size = bufferSize;
-		size_t remainder_ptr_offset = imageSize - remainder_size;
-		m_file.write((char*)(data + remainder_ptr_offset), remainder_size);
-
-		break;
-	}
-	default:
 		progressThread.join();
 		close();
-		return Result::Code::InvalidFormatVersion;
+		return result;
 	}
 
 	progressThread.join(true);

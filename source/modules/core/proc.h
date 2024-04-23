@@ -9,7 +9,7 @@
 
 #include "Header.h"
 
-struct Vec2
+/*struct Vec2
 {
 	double r, g;
 
@@ -27,7 +27,7 @@ struct Vec2
 			return g;
 		}
 	}
-};
+};*/
 
 struct Vec4
 {
@@ -36,7 +36,7 @@ struct Vec4
 	inline
 	constexpr double& operator[](typename size_t i)
 	{
-		assert(i < 2);
+		assert(i < 4);
 
 		switch (i)
 		{
@@ -45,9 +45,9 @@ struct Vec4
 			return r;
 		case 1:
 			return g;
-		case 3:
+		case 2:
 			return b;
-		case 4:
+		case 3:
 			return a;
 		}
 	}
@@ -57,29 +57,20 @@ namespace fsi
 {
 	namespace proc
 	{
-		void toRGBA(const uint8_t* srcData, const Header& srcHeader, uint8_t* dstData);
-
-		void decimate(const uint8_t* srcData, const Header& srcHeader, uint8_t* dstData);
-
-		void extendBorders(const uint8_t* srcData, const Header& srcHeader, uint8_t* dstData);
-
 		void generateThumbnail(const uint8_t* srcData, uint64_t srcStep, const Header& srcHeader,
 			uint8_t* dstData, uint64_t targetWidth, uint64_t targetHeight);
 
-		template <typename Src_T>
+		template <typename Src_T, size_t Dst_C = 4>
 		void generateThumbnail(const uint8_t* srcData, uint64_t srcStep, const Header& srcHeader,
 			uint8_t* dstData, uint64_t targetWidth, uint64_t targetHeight);
 
 		template <typename T>
 		T remap(T src, T srcMin, T srcMax, T dstMin, T dstMax);
 
-		template <typename T>
-		double sampleFromGray(T* src_ptr, int64_t src_y, int64_t src_x, int64_t src_s, int64_t src_C,
-			int64_t kernel_width, int64_t kernel_height, double kernel_size);
-
-		template <typename T>
-		Vec2 sampleFrom2Channels(T* src_ptr, int64_t src_y, int64_t src_x, int64_t src_s,
-			int64_t src_C, int64_t kernel_width, int64_t kernel_height, double kernel_size);
+		template <typename Src_T, int64_t Dst_C>
+		Vec4 sampleChannels(const Src_T* src_ptr, int64_t src_y, int64_t src_x, int64_t src_H,
+			int64_t src_W, int64_t src_S, int64_t src_C, int64_t src_end, int64_t kernel_width,
+			int64_t kernel_height, double kernel_size);
 	}
 }
 

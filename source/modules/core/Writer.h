@@ -22,19 +22,24 @@ class FSI_CORE_API fsi::Writer
 {
 public:
 
-	Writer();
+	static std::unique_ptr<Writer> createWriter(const Header* header);
 
-	~Writer();
+public:
+
+	Writer(const Header* header);
+
+	virtual ~Writer();
+
+public:
 
 	/** @brief Creates an empty FSI file and writes the header information.
-	
+
 	@param path The path to the image file.
 	@param header The header containing the image properties like dimensions, number of channels and
 	bit-depth.
 	@param useFormatVersion The version of the FSI specification to be used when writing the file. See #FormatVersion.
-	 */
-	Result open(const std::filesystem::path& path, Header header,
-		FormatVersion useFormatVersion = FormatVersion::Latest);
+	*/
+	Result open(const std::filesystem::path& path);
 
 	/** @brief Writes image data to FSI file.
 
@@ -49,29 +54,28 @@ public:
 	sizeof operator as eg., sizeof(uint16_t) for Depth::Uint16, or sizeof(float) for Depth::Float32.
 
 	@param data The image data.
-	@param step The image step/stride is the number of channels per pixel between the start of one row
-	and the start of the next row in memory. Useful when the image is a shallow copy of another or the
-	image has padding. A shallow copy is usually called "sub-image" or "sub-matrix" by image processing
-	libraries. The step is usually calculated as: width*channels + padding. If 0 is passed as the step,
-	it will be calculated from the header information as: width*channels without padding.
-	@param thumbnail Whether to generate a thumbnail from the image data (if set to true, the write
-	process will take some extra due to the generation of the thumbnail).
 	@param reportProgressCB The function is called when the progress of the operation is updated. It
 	which can additionally be used for pausing, resuming and canceling the operation.
 	@param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
 	of an instance of opaquePointer is required.
-	 */
-	Result write(const uint8_t* data, uint64_t step, bool thumbnail = false,
-		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+	*/
+	Result write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
 
-private:
+protected:
 
-	Header m_header;
+	virtual Result openImpl() = 0;
 
-	FormatVersion m_formatVersion;
+	virtual Result writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
+		const std::atomic<bool>& canceled, std::atomic<float>& progress) = 0;
+
+	virtual uint32_t formatVersion() const = 0;
+
+protected:
+
+	Header* m_header;
 
 	std::ofstream m_file;
 

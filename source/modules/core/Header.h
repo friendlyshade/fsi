@@ -8,12 +8,31 @@
 #pragma once
 #include "Depth.hpp"
 
-namespace fsi { struct Header; }
+namespace fsi { struct Header; struct Header_V1; struct Header_V2; class Writer_V2; }
 
 struct fsi::Header
 {
-	uint64_t width;
-	uint64_t height;
-	uint64_t channels;
+	uint32_t width;
+	uint32_t height;
+	uint32_t channels;
 	Depth depth;
+
+	virtual ~Header() {}
+};
+
+struct fsi::Header_V1
+	: public Header
+{
+};
+
+struct fsi::Header_V2
+	: public Header
+{
+	bool hasThumb = true;
+
+private:
+	uint16_t thumbWidth;
+	uint16_t thumbHeight;
+	
+	friend class Writer_V2;
 };
