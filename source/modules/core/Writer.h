@@ -40,7 +40,11 @@ private:
 class FSI_CORE_API fsi::Writer
 {
 public:
-
+	/** @brief Creates a Writer
+ 
+	@param useFormatVersion The version of the FSI specification to be used when writing the file. See
+	#FormatVersion.
+	*/
 	static std::unique_ptr<fsi::Writer> createWriter(FormatVersion formatVersion);
 
 public:
@@ -56,7 +60,6 @@ public:
 	@param path The path to the image file.
 	@param header The header containing the image properties like dimensions, number of channels and
 	bit-depth.
-	@param useFormatVersion The version of the FSI specification to be used when writing the file. See #FormatVersion.
 	*/
 	Result open(const std::filesystem::path& path, const Header& header);
 

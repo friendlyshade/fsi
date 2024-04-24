@@ -125,6 +125,12 @@ add_subdirectory(modules/core)
 # Add Sample Read/Write
 add_subdirectory(samples/sample_read_write)
 
+# Add Sample Convert V1 to V2
+add_subdirectory(samples/sample_convert_v1_to_v2)
+
+# Add Sample Convert V2 to V1
+add_subdirectory(samples/sample_convert_v2_to_v1)
+
 # Get all targets in a list
 get_targets(CMAKE_TARGETS True)
 

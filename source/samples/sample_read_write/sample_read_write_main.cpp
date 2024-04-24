@@ -68,6 +68,22 @@ void invertColor(uint64_t width, uint64_t height, uint64_t channels, fsi::Depth 
 	}
 }
 
+void RGBtoRG(uint64_t width, uint64_t height, fsi::Depth depth, uint8_t* srcData, uint8_t* dstData)
+{
+	assert(depth == fsi::Depth::Uint16 && "Data must be Uint16");
+
+	uint16_t* dataPtr = reinterpret_cast<uint16_t*>(srcData);
+
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
+		{
+			dataPtr[(y*width + x)*3 + 0] = dataPtr[(y*width + x)*2 + 0];
+			dataPtr[(y*width + x)*3 + 1] = dataPtr[(y*width + x)*2 + 1];
+		}
+	}
+}
+
 void updateProgressBar(
 	int tick,
 	int total,
@@ -103,34 +119,9 @@ int main()
 {
 	using std::cout;
 
-	/*int* b = new int(5);
-	int* a = new int(*b);
-	// *a = *b;
-	cout << "a: " << *a << "\n";
-	return 0;
-	*/
-
-
-	/*
-	const fsi::Header* header = new fsi::Header_V2;
-	const fsi::Header& D_ptr = *header;// get a base pointer to derived type
-	const fsi::Header_V2 *derived_ptr1 = dynamic_cast<const fsi::Header_V2*>(&D_ptr);// works fine
-
-	if (derived_ptr1)
-		cout << "Yes, it was converted!\n";
-	else
-		cout << "No, could not be converted!\n";
-
-	return 0;
-	*/
-
-	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-rgb-16-bit.fsi";
-	// std::filesystem::path inPath = "../../extras/samples/2-channel-image/924x2000px_2C_16bit.fsi";
-	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
-	std::filesystem::path outV1Path = "../../extras/samples/stone-wall-7/output-v1.fsi";
-	std::filesystem::path outV2Path = "../../extras/samples/stone-wall-7/output-v2.fsi";
-	// std::filesystem::path outPath = "../../extras/samples/2-channel-image/output.fsi";
+	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input/input.fsi";
+	std::filesystem::path outV1Path = "../../extras/samples/stone-wall-7/output/output-v1.fsi";
+	std::filesystem::path outV2Path = "../../extras/samples/stone-wall-7/output/output-v2.fsi";
 
 	fsi::Result result;
 
@@ -174,8 +165,11 @@ int main()
 	// ------------
 
 	cout << "Inverting image colors...\n";
-	//invertColor(image.width, image.height, image.channels, image.depth, image.data);
+	invertColor(image.width, image.height, image.channels, image.depth, image.data);
 	cout << "Image colors inverted\n";
+
+	// Image rgImage(image.width, image.height, 2, image.depth);
+	// RGBtoRG(image.width, image.height, image.depth, image.data, rgImage.data);
 
 	// Write
 	// -----
@@ -184,6 +178,15 @@ int main()
 
 	// v1
 	{
+		// Create destination path if it doesn't exist
+		std::error_code createDirsError;
+		std::filesystem::create_directories(outV1Path.parent_path(), createDirsError);
+		if (createDirsError)
+		{
+			cout << "Could not create out v1 path recursively\n";
+			return 1;
+		}
+
 		fsi::Header headerWriter;
 		headerWriter.width = image.width;
 		headerWriter.height = image.height;
@@ -214,6 +217,15 @@ int main()
 
 	// v2
 	{
+		// Create destination path if it doesn't exist
+		std::error_code createDirsError;
+		std::filesystem::create_directories(outV2Path.parent_path(), createDirsError);
+		if (createDirsError)
+		{
+			cout << "Could not create out v2 path recursively\n";
+			return 1;
+		}
+
 		fsi::Header headerWriter;
 		headerWriter.width = image.width;
 		headerWriter.height = image.height;

@@ -41,10 +41,13 @@ fsi::Result fsi::WriterV2::openImpl()
 			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 		}
 
-		m_file.write((char*)(&m_header.width), sizeof(uint64_t));
-		m_file.write((char*)(&m_header.height), sizeof(uint64_t));
-		m_file.write((char*)(&m_header.channels), sizeof(uint64_t));
+		m_file.write((char*)(&m_header.width), sizeof(uint32_t));
+		m_file.write((char*)(&m_header.height), sizeof(uint32_t));
+		m_file.write((char*)(&m_header.channels), sizeof(uint32_t));
 		m_file.write((char*)(&depth), sizeof(uint8_t));
+
+		uint8_t hasThumb = m_header.hasThumb ? 1 : 0;
+		m_file.write((char*)(&hasThumb), sizeof(uint8_t));
 	}
 
 	// --- Write thumbnail header ---
@@ -73,11 +76,6 @@ fsi::Result fsi::WriterV2::writeImpl(const uint8_t* data, const std::atomic<bool
 	{
 		if (m_header.hasThumb)
 		{
-			// Thumbnail depth (Uint8)
-			const Depth thumbDepth = Depth::Uint8;
-			// Thumbnail channels (RGBA)
-			const uint64_t thumbChannels = 4;
-
 			const uint64_t thumbSize = m_header.thumbWidth * m_header.thumbHeight * thumbChannels * sizeOfDepth(thumbDepth);
 			std::vector<uint8_t> thumb(thumbSize);
 			
@@ -144,7 +142,7 @@ void fsi::WriterV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeigh
 
 	if (imageWidth > thumbnailSize || imageHeight > thumbnailSize)
 	{
-		if (imageWidth > imageWidth)
+		if (imageWidth > imageHeight)
 		{
 			thumbWidth = thumbnailSize;
 			thumbHeight = static_cast<uint16_t>((static_cast<float>(thumbnailSize)
@@ -160,8 +158,8 @@ void fsi::WriterV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeigh
 	thumbWidth = std::max(uint16_t(1), thumbWidth);
 	thumbHeight = std::max(uint16_t(1), thumbHeight);
 
-	std::cout << "Thumb width: " << thumbWidth << "\n";
-	std::cout << "Thumb height: " << thumbHeight << "\n";
+	// std::cout << "Thumb width: " << thumbWidth << "\n";
+	// std::cout << "Thumb height: " << thumbHeight << "\n";
 
 	assert(thumbWidth <= thumbnailSize && "Thumbnail max width is 256. Should not reach here.");
 	assert(thumbHeight <= thumbnailSize && "Thumbnail max height is 256. Should not reach here.");

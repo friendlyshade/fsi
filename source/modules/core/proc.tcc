@@ -68,9 +68,6 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, cons
 	const int64_t kernel_height = round(height_factor);
 	const double kernel_size = static_cast<double>(kernel_width*kernel_height);
 
-	std::cout << "src_end: " << src_end << "\n";
-	std::cout << "src_C: " << src_C << "\n";
-
 #pragma omp parallel for
 	for (int64_t dst_y = 0; dst_y < dst_H; dst_y++)
 	{
@@ -270,7 +267,7 @@ fsi::proc::Vec4 fsi::proc::sampleChannels(const Src_T* src_ptr, int64_t src_y, i
 				+ c;
 
 			assert((src_idx >= 0) && "src out of range");
-			if (src_idx >= src_end)
+			/*if (src_idx >= src_end)
 			{
 				std::cout << "src_idx out of range: " << src_idx << "\n";
 				std::cout << "src_x: " << src_x << "\n";
@@ -282,7 +279,7 @@ fsi::proc::Vec4 fsi::proc::sampleChannels(const Src_T* src_ptr, int64_t src_y, i
 				std::cout << "src_H: " << src_H << "\n";
 				std::cout << "src_S: " << src_S << "\n";
 				std::cout << "src_C: " << src_C << "\n";
-			}
+			}*/
 			assert((src_idx < src_end) && "src out of range");
 
 			accum += static_cast<double>(src_ptr[src_idx]);

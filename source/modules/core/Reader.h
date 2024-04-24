@@ -28,7 +28,8 @@ public:
 
 	Result open(const std::filesystem::path& path);
 
-	Result read(uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+	Result read(uint8_t* data, uint8_t* thumbData = nullptr,
+		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();

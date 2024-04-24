@@ -19,7 +19,7 @@ struct fsi::Header
 	/** @brief Generates a thumbnail when set to true while writing; it will be true when a thumbnails is
 	present after reading an image
 	*/
-	bool hasThumb = true;
+	bool hasThumb = false;
 	uint16_t thumbWidth = 0;
 	uint16_t thumbHeight = 0;
 };
