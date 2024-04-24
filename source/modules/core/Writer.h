@@ -16,17 +16,36 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fsi { class Writer; }
+namespace fsi { class Writer; class Writer; }
+
+/*class FSI_CORE_API fsi::WriterCreator
+{
+public:
+
+	Writer();
+
+	~Writer();
+
+public:
+
+	fsi::Result open();
+
+	void close();
+
+private:
+
+	std::unique_ptr<WriterImpl> m_impl;
+};*/
 
 class FSI_CORE_API fsi::Writer
 {
 public:
 
-	static std::unique_ptr<Writer> createWriter(const Header* header);
+	static std::unique_ptr<fsi::Writer> createWriter(FormatVersion formatVersion);
 
 public:
 
-	Writer(const Header* header);
+	Writer();
 
 	virtual ~Writer();
 
@@ -39,7 +58,7 @@ public:
 	bit-depth.
 	@param useFormatVersion The version of the FSI specification to be used when writing the file. See #FormatVersion.
 	*/
-	Result open(const std::filesystem::path& path);
+	Result open(const std::filesystem::path& path, const Header& header);
 
 	/** @brief Writes image data to FSI file.
 
@@ -75,7 +94,7 @@ protected:
 
 protected:
 
-	Header* m_header;
+	Header m_header;
 
 	std::ofstream m_file;
 

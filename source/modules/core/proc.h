@@ -9,54 +9,34 @@
 
 #include "Header.h"
 
-/*struct Vec2
-{
-	double r, g;
-
-	inline
-	constexpr double& operator[](typename size_t i)
-	{
-		assert(i < 2);
-
-		switch (i)
-		{
-		default:
-		case 0:
-			return r;
-		case 1:
-			return g;
-		}
-	}
-};*/
-
-struct Vec4
-{
-	double r, g, b, a;
-
-	inline
-	constexpr double& operator[](typename size_t i)
-	{
-		assert(i < 4);
-
-		switch (i)
-		{
-		default:
-		case 0:
-			return r;
-		case 1:
-			return g;
-		case 2:
-			return b;
-		case 3:
-			return a;
-		}
-	}
-};
-
 namespace fsi
 {
 	namespace proc
 	{
+		struct Vec4
+		{
+			double r, g, b, a;
+
+			inline
+			constexpr double& operator[](typename size_t i)
+			{
+				assert(i < 4);
+
+				switch (i)
+				{
+				default:
+				case 0:
+					return r;
+				case 1:
+					return g;
+				case 2:
+					return b;
+				case 3:
+					return a;
+				}
+			}
+		};
+
 		void generateThumbnail(const uint8_t* srcData, uint64_t srcStep, const Header& srcHeader,
 			uint8_t* dstData, uint64_t targetWidth, uint64_t targetHeight);
 

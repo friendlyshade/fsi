@@ -8,31 +8,18 @@
 #pragma once
 #include "Depth.hpp"
 
-namespace fsi { struct Header; struct Header_V1; struct Header_V2; class Writer_V2; }
+namespace fsi { struct Header; }
 
 struct fsi::Header
 {
-	uint32_t width;
-	uint32_t height;
-	uint32_t channels;
-	Depth depth;
-
-	virtual ~Header() {}
-};
-
-struct fsi::Header_V1
-	: public Header
-{
-};
-
-struct fsi::Header_V2
-	: public Header
-{
+	uint32_t width = 0;
+	uint32_t height = 0;
+	uint32_t channels = 0;
+	Depth depth = Depth::Invalid;
+	/** @brief Generates a thumbnail when set to true while writing; it will be true when a thumbnails is
+	present after reading an image
+	*/
 	bool hasThumb = true;
-
-private:
-	uint16_t thumbWidth;
-	uint16_t thumbHeight;
-	
-	friend class Writer_V2;
+	uint16_t thumbWidth = 0;
+	uint16_t thumbHeight = 0;
 };

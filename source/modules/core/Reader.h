@@ -35,11 +35,11 @@ public:
 
 public:
 
-	Header_V1 header();
+	Header header();
 
 private:
 
-	Header_V1 m_header;
+	Header m_header;
 
 	FormatVersion m_formatVersion;
 

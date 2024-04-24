@@ -9,7 +9,6 @@
 #include "../../modules/core/ProgressThread.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
-#include "../../modules/core/Writer_V1.h"
 #include "../../modules/core/Timer.h"
 #include "../../modules/global.h"
 #include <iostream>
@@ -126,9 +125,9 @@ int main()
 	*/
 
 	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
-	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-rgb-16-bit.fsi";
+	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-rgb-16-bit.fsi";
 	// std::filesystem::path inPath = "../../extras/samples/2-channel-image/924x2000px_2C_16bit.fsi";
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
+	// std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input-18333px-gray-16-bit.fsi";
 	std::filesystem::path outV1Path = "../../extras/samples/stone-wall-7/output-v1.fsi";
 	std::filesystem::path outV2Path = "../../extras/samples/stone-wall-7/output-v2.fsi";
 	// std::filesystem::path outPath = "../../extras/samples/2-channel-image/output.fsi";
@@ -149,7 +148,7 @@ int main()
 		return 1;
 	}
 
-	fsi::Header_V1 headerReader = reader.header();
+	fsi::Header headerReader = reader.header();
 
 	Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
 
@@ -185,15 +184,15 @@ int main()
 
 	// v1
 	{
-		fsi::Header_V1* headerWriter;
-		headerWriter->width = image.width;
-		headerWriter->height = image.height;
-		headerWriter->channels = image.channels;
-		headerWriter->depth = image.depth;
+		fsi::Header headerWriter;
+		headerWriter.width = image.width;
+		headerWriter.height = image.height;
+		headerWriter.channels = image.channels;
+		headerWriter.depth = image.depth;
 
-		fsi::Writer_V1 writer(headerWriter);
+		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(fsi::FormatVersion::V1);
 
-		result = writer.open(outV1Path);
+		result = writer->open(outV1Path, headerWriter);
 		if (result != fsi::Result::Code::Success)
 		{
 			cout << result.message() << "\n";
@@ -201,30 +200,31 @@ int main()
 		}
 
 		fsi::Timer timer; timer.start();
-		result = writer.write(image.data, progressCallback);
+		result = writer->write(image.data, progressCallback);
 		if (result != fsi::Result::Code::Success)
 		{
 			cout << result.message() << "\n";
 			return 1;
 		}
 
-		writer.close();
+		writer->close();
 
 		cout << "Output (v1) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
 
 	// v2
 	{
-		std::unique_ptr<fsi::Header_V2> headerWriter;
-		headerWriter->width = image.width;
-		headerWriter->height = image.height;
-		headerWriter->channels = image.channels;
-		headerWriter->depth = image.depth;
-		headerWriter->depth = image.depth;
+		fsi::Header headerWriter;
+		headerWriter.width = image.width;
+		headerWriter.height = image.height;
+		headerWriter.channels = image.channels;
+		headerWriter.depth = image.depth;
+		headerWriter.depth = image.depth;
+		headerWriter.hasThumb = false;
 
-		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(headerWriter);
+		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(fsi::FormatVersion::V2);
 
-		result = writer->open(outV1Path);
+		result = writer->open(outV2Path, headerWriter);
 		if (result != fsi::Result::Code::Success)
 		{
 			cout << result.message() << "\n";

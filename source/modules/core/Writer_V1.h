@@ -17,14 +17,10 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fsi { class Writer_V1; }
+namespace fsi { class WriterV1; }
 
-class FSI_CORE_API fsi::Writer_V1 : public Writer
+class FSI_CORE_API fsi::WriterV1 : public Writer
 {
-public:
-
-	Writer_V1(const Header* header);
-
 private:
 
 	Result openImpl() override;

@@ -14,29 +14,21 @@
 #include <atomic>
 #include <algorithm>
 
-fsi::Writer_V1::Writer_V1(const Header* header)
-	: Writer(header)
+fsi::Result fsi::WriterV1::openImpl()
 {
-}
+	uint32_t depth = static_cast<uint8_t>(m_header.depth);
 
-fsi::Result fsi::Writer_V1::openImpl()
-{
-	fsi::Header_V1* header_v1 = dynamic_cast<fsi::Header_V1*>(m_header);
-	assert(header_v1 != nullptr && "Header must point to a Header_V1");
-
-	uint32_t depth = static_cast<uint8_t>(header_v1->depth);
-
-	if (!(header_v1->channels >= 1 && header_v1->channels <= 1048575))
+	if (!(m_header.channels >= 1 && m_header.channels <= 1048575))
 	{
 		return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
 	}
 
-	if (!(header_v1->width >= 1 && header_v1->width <= 1048575))
+	if (!(m_header.width >= 1 && m_header.width <= 1048575))
 	{
 		return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 	}
 
-	if (!(header_v1->height >= 1 && header_v1->height <= 1048575))
+	if (!(m_header.height >= 1 && m_header.height <= 1048575))
 	{
 		return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 	}
@@ -46,22 +38,19 @@ fsi::Result fsi::Writer_V1::openImpl()
 		return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 	}
 
-	m_file.write((char*)(&header_v1->width), sizeof(uint32_t));
-	m_file.write((char*)(&header_v1->height), sizeof(uint32_t));
-	m_file.write((char*)(&header_v1->channels), sizeof(uint32_t));
+	m_file.write((char*)(&m_header.width), sizeof(uint32_t));
+	m_file.write((char*)(&m_header.height), sizeof(uint32_t));
+	m_file.write((char*)(&m_header.channels), sizeof(uint32_t));
 	m_file.write((char*)(&depth), sizeof(uint32_t));
 
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::Writer_V1::writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
+fsi::Result fsi::WriterV1::writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
 	const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
-	fsi::Header_V1* header_v1 = dynamic_cast<fsi::Header_V1*>(m_header);
-	assert(header_v1 != nullptr && "Header must point to a Header_V1");
-
-	const uint64_t depthSize = sizeOfDepth(header_v1->depth);
-	const uint64_t imageSize = header_v1->width * header_v1->height * header_v1->channels * depthSize;
+	const uint64_t depthSize = sizeOfDepth(m_header.depth);
+	const uint64_t imageSize = m_header.width * m_header.height * m_header.channels * depthSize;
 
 	// If buffer is larger than the total data, adjust the buffer size
 	const uint64_t bufferSize = defaultBufferSize > imageSize ? imageSize : defaultBufferSize;
@@ -92,7 +81,7 @@ fsi::Result fsi::Writer_V1::writeImpl(const uint8_t* data, const std::atomic<boo
 	return Result::Code::Success;
 }
 
-uint32_t fsi::Writer_V1::formatVersion() const
+uint32_t fsi::WriterV1::formatVersion() const
 {
 	return 1;
 }

@@ -246,7 +246,7 @@ double fsi::proc::sampleFromGray(T* src_ptr, int64_t src_y, int64_t src_x, int64
 
 template <typename Src_T, int64_t Dst_C>
 inline
-Vec4 fsi::proc::sampleChannels(const Src_T* src_ptr, int64_t src_y, int64_t src_x, int64_t src_H,
+fsi::proc::Vec4 fsi::proc::sampleChannels(const Src_T* src_ptr, int64_t src_y, int64_t src_x, int64_t src_H,
 	int64_t src_W, int64_t src_S, int64_t src_C, int64_t src_end, int64_t kernel_width,
 	int64_t kernel_height, double kernel_size)
 {

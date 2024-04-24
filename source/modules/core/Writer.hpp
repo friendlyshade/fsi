@@ -28,35 +28,47 @@
 	fsi::Header originalHeader;
 #endif
 
-std::unique_ptr<fsi::Writer> fsi::Writer::createWriter(const Header* header)
+/*fsi::Writer::Writer()
 {
-	const Header_V1* header_v1 = dynamic_cast<const Header_V1*>(header);
-	const Header_V2* header_v2 = dynamic_cast<const Header_V2*>(header);
+}
 
-	if (header_v1)
+inline fsi::Writer::~Writer()
+{
+	close();
+}
+
+fsi::Result fsi::Writer::open()
+{
+}
+
+inline void fsi::Writer::close()
+{
+	m_impl->close();
+}*/
+
+std::unique_ptr<fsi::Writer> fsi::Writer::createWriter(FormatVersion formatVersion)
+{
+	if (formatVersion == FormatVersion::V1)
 	{
-		return std::make_unique<Writer_V1>(*header_v1);
+		return std::make_unique<WriterV1>();
 	}
-	else if (header_v2)
+	else if (formatVersion == FormatVersion::V2)
 	{
-		return std::make_unique<Writer_V2>(*header_v2);
+		return std::make_unique<WriterV2>();
 	}
 
 	throw std::exception("Header must be castable to Header_V1 or Header_V2");
 	return nullptr;
 }
 
-fsi::Writer::Writer(const Header* header)
-	: m_header(new Header(*header))
-{
-}
+fsi::Writer::Writer() {}
 
 fsi::Writer::~Writer()
 {
 	close();
 }
 
-fsi::Result fsi::Writer::open(const std::filesystem::path& path)
+fsi::Result fsi::Writer::open(const std::filesystem::path& path, const Header& header)
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
@@ -73,6 +85,9 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path)
 	header.channels = thumbChannels;
 	header.depth = thumbDepth;
 #endif
+
+	// Set header
+	m_header = header;
 
 	// Set path
 	m_path = path;
