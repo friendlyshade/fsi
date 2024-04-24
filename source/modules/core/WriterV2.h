@@ -37,5 +37,5 @@ private:
 };
 
 #if FSI_CORE_HEADERONLY
-#include "Writer_V2.hpp"
+#include "WriterV2.hpp"
 #endif

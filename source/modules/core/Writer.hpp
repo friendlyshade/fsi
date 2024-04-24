@@ -8,8 +8,8 @@
 #pragma once
 
 #include "Writer.h"
-#include "Writer_V1.h"
-#include "Writer_V2.h"
+#include "WriterV1.h"
+#include "WriterV2.h"
 #include "consts.h"
 #include "proc.h"
 #include <iostream>
