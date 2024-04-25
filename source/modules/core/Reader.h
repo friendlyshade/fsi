@@ -24,7 +24,9 @@ public:
 
 	Reader();
 	
-	~Reader();
+	virtual ~Reader();
+
+public:
 
 	Result open(const std::filesystem::path& path);
 
@@ -33,6 +35,18 @@ public:
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
+
+public:
+
+	virtual FormatVersion formatVersion() = 0;
+
+private:
+
+	virtual Result open(std::ifstream& file, Header& header) = 0;
+
+	virtual Result read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
+		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
+		std::atomic<float>& progress) = 0;
 
 public:
 

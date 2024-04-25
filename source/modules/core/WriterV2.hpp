@@ -15,23 +15,28 @@
 #include <algorithm>
 #include <vector>
 
-fsi::Result fsi::WriterV2::openImpl()
+fsi::FormatVersion fsi::WriterV2::formatVersion()
+{
+	return FormatVersion::V2;
+}
+
+fsi::Result fsi::WriterV2::open(std::ofstream& file, Header& header)
 {
 	// --- Write image header ---
 	{
-		uint8_t depth = static_cast<uint8_t>(m_header.depth);
+		uint8_t depth = static_cast<uint8_t>(header.depth);
 
-		if (!(m_header.channels >= 1 && m_header.channels <= 1048575))
+		if (!(header.channels >= 1 && header.channels <= 1048575))
 		{
 			return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
 		}
 
-		if (!(m_header.width >= 1 && m_header.width <= 1048575))
+		if (!(header.width >= 1 && header.width <= 1048575))
 		{
 			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 		}
 
-		if (!(m_header.height >= 1 && m_header.height <= 1048575))
+		if (!(header.height >= 1 && header.height <= 1048575))
 		{
 			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 		}
@@ -41,49 +46,49 @@ fsi::Result fsi::WriterV2::openImpl()
 			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 		}
 
-		m_file.write((char*)(&m_header.width), sizeof(uint32_t));
-		m_file.write((char*)(&m_header.height), sizeof(uint32_t));
-		m_file.write((char*)(&m_header.channels), sizeof(uint32_t));
-		m_file.write((char*)(&depth), sizeof(uint8_t));
+		file.write((char*)(&header.width), sizeof(uint32_t));
+		file.write((char*)(&header.height), sizeof(uint32_t));
+		file.write((char*)(&header.channels), sizeof(uint32_t));
+		file.write((char*)(&depth), sizeof(uint8_t));
 
-		uint8_t hasThumb = m_header.hasThumb ? 1 : 0;
-		m_file.write((char*)(&hasThumb), sizeof(uint8_t));
+		uint8_t hasThumb = header.hasThumb ? 1 : 0;
+		file.write((char*)(&hasThumb), sizeof(uint8_t));
 	}
 
 	// --- Write thumbnail header ---
 	{
 		// Write "has thumbnail"
-		uint8_t generateThumbnailInt = m_header.hasThumb ? 1 : 0;
-		m_file.write((char*)(&generateThumbnailInt), sizeof(uint8_t));
+		uint8_t generateThumbnailInt = header.hasThumb ? 1 : 0;
+		file.write((char*)(&generateThumbnailInt), sizeof(uint8_t));
 
 		// Write thumbnail dimensions
-		if (m_header.hasThumb)
+		if (header.hasThumb)
 		{
-			calcThumbDimensions(m_header.width, m_header.height, m_header.thumbWidth,
-				m_header.thumbHeight);
-			m_file.write((char*)(&m_header.thumbWidth), sizeof(uint16_t));
-			m_file.write((char*)(&m_header.thumbHeight), sizeof(uint16_t));
+			calcThumbDimensions(header.width, header.height, header.thumbWidth,
+				header.thumbHeight);
+			file.write((char*)(&header.thumbWidth), sizeof(uint16_t));
+			file.write((char*)(&header.thumbHeight), sizeof(uint16_t));
 		}
 	}
 
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::WriterV2::writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
-	const std::atomic<bool>& canceled, std::atomic<float>& progress)
+fsi::Result fsi::WriterV2::write(std::ofstream& file, const Header& header, const uint8_t* data,
+	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
 	// --- Write thumbnail data ---
 	{
-		if (m_header.hasThumb)
+		if (header.hasThumb)
 		{
-			const uint64_t thumbSize = m_header.thumbWidth * m_header.thumbHeight * thumbChannels * sizeOfDepth(thumbDepth);
+			const uint64_t thumbSize = header.thumbWidth * header.thumbHeight * thumbChannels * sizeOfDepth(thumbDepth);
 			std::vector<uint8_t> thumb(thumbSize);
 			
-			const uint64_t step = m_header.width * m_header.channels;
+			const uint64_t step = header.width * header.channels;
 
 			// fsi::Timer timer; timer.start();
-			proc::generateThumbnail(data, step, m_header, thumb.data(), m_header.thumbWidth,
-				m_header.thumbHeight);
+			proc::generateThumbnail(data, step, header, thumb.data(), header.thumbWidth,
+				header.thumbHeight);
 			// std::cout << "Thumbnail generated in " << timer.elapsedMs() << " ms\n";
 
 #if WRITE_THUMB_AS_FILE
@@ -91,14 +96,14 @@ fsi::Result fsi::WriterV2::writeImpl(const uint8_t* data, const std::atomic<bool
 			data = thumbData;
 			step = thumbWidth * thumbChannels;
 #endif
-			m_file.write((char*)(thumb.data()), thumbSize);
+			file.write((char*)(thumb.data()), thumbSize);
 		}
 	}
 	
 	// --- Write image data ---
 	{
-		const uint64_t depthSize = sizeOfDepth(m_header.depth);
-		const uint64_t imageSize = m_header.width * m_header.height * m_header.channels * depthSize;
+		const uint64_t depthSize = sizeOfDepth(header.depth);
+		const uint64_t imageSize = header.width * header.height * header.channels * depthSize;
 
 		// If buffer is larger than the total data, adjust the buffer size
 		const uint64_t bufferSize = defaultBufferSize > imageSize ? imageSize : defaultBufferSize;
@@ -114,7 +119,7 @@ fsi::Result fsi::WriterV2::writeImpl(const uint8_t* data, const std::atomic<bool
 			if (canceled)
 				return Result::Code::Canceled;
 
-			m_file.write((char*)(data + ptr_offset), bufferSize);
+			file.write((char*)(data + ptr_offset), bufferSize);
 
 			progress = static_cast<float>(ptr_offset) / static_cast<float>(total);
 		}
@@ -124,15 +129,10 @@ fsi::Result fsi::WriterV2::writeImpl(const uint8_t* data, const std::atomic<bool
 		if (remainder_size == 0)
 			remainder_size = bufferSize;
 		size_t remainder_ptr_offset = imageSize - remainder_size;
-		m_file.write((char*)(data + remainder_ptr_offset), remainder_size);
+		file.write((char*)(data + remainder_ptr_offset), remainder_size);
 	}
 
 	return Result::Code::Success;
-}
-
-uint32_t fsi::WriterV2::formatVersion() const
-{
-	return 2;
 }
 
 void fsi::WriterV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight,

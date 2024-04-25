@@ -86,16 +86,19 @@ public:
 
 	void close();
 
-protected:
+public:
 
-	virtual Result openImpl() = 0;
-
-	virtual Result writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
-		const std::atomic<bool>& canceled, std::atomic<float>& progress) = 0;
-
-	virtual uint32_t formatVersion() const = 0;
+	virtual FormatVersion formatVersion() = 0;
 
 protected:
+
+	virtual Result open(std::ofstream& file, Header& header) = 0;
+
+	virtual Result write(std::ofstream& file, const Header& header, const uint8_t* data,
+		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
+		std::atomic<float>& progress) = 0;
+
+private:
 
 	Header m_header;
 

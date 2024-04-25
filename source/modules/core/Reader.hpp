@@ -51,102 +51,12 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	// Read the version of the file specification
 	m_file.read((char*)(&m_formatVersion), sizeof(uint32_t));
 
-	// Read the rest of the header, immediately after the version
-	switch (m_formatVersion)
+	// Read the rest of the header specific to the file version
+	Result result = open(m_file, m_header);
+	if (result != Result::Code::Success)
 	{
-	case FormatVersion::V2:
-	{
-		uint32_t width;
-		uint32_t height;
-		uint32_t channels;
-		uint8_t depth;
-		uint8_t hasThumb;
-
-		m_file.read((char*)(&width), sizeof(uint32_t));
-		m_file.read((char*)(&height), sizeof(uint32_t));
-		m_file.read((char*)(&channels), sizeof(uint32_t));
-		m_file.read((char*)(&depth), sizeof(uint8_t));
-		m_file.read((char*)(&hasThumb), sizeof(uint8_t));
-
-		if (!(channels >= 1 && channels <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(width >= 1 && width <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(height >= 1 && height <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(depth >= 1 && depth <= 10))
-		{
-			close();
-			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
-		}
-
-		m_header.width = width;
-		m_header.height = height;
-		m_header.channels = channels;
-		m_header.depth = static_cast<Depth>(depth);
-
-		m_header.hasThumb = hasThumb > 0;
-
-		break;
-	}
-	case FormatVersion::V1:
-	{
-		uint32_t width;
-		uint32_t height;
-		uint32_t channels;
-		uint32_t depth;
-
-		m_file.read((char*)(&width), sizeof(uint32_t));
-		m_file.read((char*)(&height), sizeof(uint32_t));
-		m_file.read((char*)(&channels), sizeof(uint32_t));
-		m_file.read((char*)(&depth), sizeof(uint32_t));
-
-		if (!(channels >= 1 && channels <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(width >= 1 && width <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(height >= 1 && height <= 1048575))
-		{
-			close();
-			return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
-		}
-
-		if (!(depth >= 1 && depth <= 10))
-		{
-			close();
-			return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
-		}
-
-		m_header.width = static_cast<uint64_t>(width);
-		m_header.height = static_cast<uint64_t>(height);
-		m_header.channels = static_cast<uint64_t>(channels);
-		m_header.depth = static_cast<Depth>(depth);
-
-		break;
-	}
-	default:
 		close();
-		return Result::Code::InvalidFormatVersion;
+		return result;
 	}
 
 	return Result::Code::Success;
@@ -168,71 +78,13 @@ fsi::Result fsi::Reader::read(uint8_t* data, uint8_t* thumbData,
 		[&paused]() { paused = false; },
 		progressCallbackInterval);
 
-	switch (m_formatVersion)
+	// Read the data specific to the file version
+	Result result = read(m_file, m_header, data, thumbData, paused, canceled, progress);
+	if (result != Result::Code::Success)
 	{
-	case FormatVersion::V2:
-	{
-		const uint64_t thumbSize = m_header.thumbWidth * m_header.thumbHeight * thumbChannels
-			* sizeOfDepth(thumbDepth);
-
-		if (m_header.hasThumb)
-		{
-			// TODO: Check if the remaining size of the file equals to "thumbSize + imageSize"
-
-			if (thumbData)
-				m_file.read((char*)(&thumbData), sizeof(thumbSize));
-			else
-				m_file.ignore(thumbSize);
-		}
-	}
-	case FormatVersion::V1:
-	{
-		if (data)
-		{
-			const uint64_t depthSize = sizeOfDepth(m_header.depth);
-			const uint64_t imageSize = m_header.width * m_header.height * m_header.channels * depthSize;
-
-			// TODO: Check if the remaining size of the file equals to "imageSize"
-
-			// If buffer is larger than the total data, adjust the buffer size
-			const uint64_t bufferSize = defaultBufferSize > imageSize ? imageSize : defaultBufferSize;
-
-			// Read data
-			size_t ptr_offset = 0;
-			const size_t total = imageSize - bufferSize;
-			for (; ptr_offset < total; ptr_offset += bufferSize)
-			{
-				while (paused)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				}
-
-				if (canceled)
-				{
-					progressThread.join();
-					close();
-					return Result::Code::Canceled;
-				}
-
-				m_file.read((char*)(data + ptr_offset), bufferSize);
-
-				progress = static_cast<float>(ptr_offset) / static_cast<float>(total);
-			}
-
-			// Read remaining bytes (if any)
-			size_t remainder_size = imageSize % bufferSize;
-			if (remainder_size == 0)
-				remainder_size = bufferSize;
-			size_t remainder_ptr_offset = imageSize - remainder_size;
-			m_file.read((char*)(data + remainder_ptr_offset), remainder_size);
-		}
-
-		break;
-	}
-	default:
 		progressThread.join();
 		close();
-		return Result::Code::InvalidFormatVersion;
+		return result;
 	}
 
 	progressThread.join(true);

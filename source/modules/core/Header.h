@@ -16,7 +16,8 @@ struct fsi::Header
 	uint32_t height = 0;
 	uint32_t channels = 0;
 	Depth depth = Depth::Invalid;
-	/** @brief Generates a thumbnail when set to true while writing; it will be true when a thumbnails is
+
+	/** @brief Generates a thumbnail when set to true while writing. It will be true when a thumbnails is
 	present after reading an image
 	*/
 	bool hasThumb = false;

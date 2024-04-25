@@ -14,21 +14,26 @@
 #include <atomic>
 #include <algorithm>
 
-fsi::Result fsi::WriterV1::openImpl()
+fsi::FormatVersion fsi::WriterV1::formatVersion()
 {
-	uint32_t depth = static_cast<uint8_t>(m_header.depth);
+	return FormatVersion::V1;
+}
 
-	if (!(m_header.channels >= 1 && m_header.channels <= 1048575))
+fsi::Result fsi::WriterV1::open(std::ofstream& file, Header& header)
+{
+	uint32_t depth = static_cast<uint8_t>(header.depth);
+
+	if (!(header.channels >= 1 && header.channels <= 1048575))
 	{
 		return { Result::Code::InvalidImageChannels, "Must be an integer between 1 and 1,048,575" };
 	}
 
-	if (!(m_header.width >= 1 && m_header.width <= 1048575))
+	if (!(header.width >= 1 && header.width <= 1048575))
 	{
 		return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
 	}
 
-	if (!(m_header.height >= 1 && m_header.height <= 1048575))
+	if (!(header.height >= 1 && header.height <= 1048575))
 	{
 		return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
 	}
@@ -38,19 +43,19 @@ fsi::Result fsi::WriterV1::openImpl()
 		return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
 	}
 
-	m_file.write((char*)(&m_header.width), sizeof(uint32_t));
-	m_file.write((char*)(&m_header.height), sizeof(uint32_t));
-	m_file.write((char*)(&m_header.channels), sizeof(uint32_t));
-	m_file.write((char*)(&depth), sizeof(uint32_t));
+	file.write((char*)(&header.width), sizeof(uint32_t));
+	file.write((char*)(&header.height), sizeof(uint32_t));
+	file.write((char*)(&header.channels), sizeof(uint32_t));
+	file.write((char*)(&depth), sizeof(uint32_t));
 
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::WriterV1::writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
-	const std::atomic<bool>& canceled, std::atomic<float>& progress)
+fsi::Result fsi::WriterV1::write(std::ofstream& file, const Header& header, const uint8_t* data,
+	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
-	const uint64_t depthSize = sizeOfDepth(m_header.depth);
-	const uint64_t imageSize = m_header.width * m_header.height * m_header.channels * depthSize;
+	const uint64_t depthSize = sizeOfDepth(header.depth);
+	const uint64_t imageSize = header.width * header.height * header.channels * depthSize;
 
 	// If buffer is larger than the total data, adjust the buffer size
 	const uint64_t bufferSize = defaultBufferSize > imageSize ? imageSize : defaultBufferSize;
@@ -66,7 +71,7 @@ fsi::Result fsi::WriterV1::writeImpl(const uint8_t* data, const std::atomic<bool
 		if (canceled)
 			return Result::Code::Canceled;
 
-		m_file.write((char*)(data + ptr_offset), bufferSize);
+		file.write((char*)(data + ptr_offset), bufferSize);
 
 		progress = static_cast<float>(ptr_offset) / static_cast<float>(total);
 	}
@@ -76,12 +81,7 @@ fsi::Result fsi::WriterV1::writeImpl(const uint8_t* data, const std::atomic<bool
 	if (remainder_size == 0)
 		remainder_size = bufferSize;
 	size_t remainder_ptr_offset = imageSize - remainder_size;
-	m_file.write((char*)(data + remainder_ptr_offset), remainder_size);
+	file.write((char*)(data + remainder_ptr_offset), remainder_size);
 
 	return Result::Code::Success;
-}
-
-uint32_t fsi::WriterV1::formatVersion() const
-{
-	return 1;
 }

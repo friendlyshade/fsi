@@ -21,14 +21,17 @@ namespace fsi { class WriterV2; }
 
 class FSI_CORE_API fsi::WriterV2 : public Writer
 {
+public:
+
+	FormatVersion formatVersion() override;
+
 private:
 
-	Result openImpl() override;
+	Result open(std::ofstream& file, Header& header) override;
 
-	Result writeImpl(const uint8_t* data, const std::atomic<bool>& paused,
-		const std::atomic<bool>& canceled, std::atomic<float>& progress) override;
-
-	uint32_t formatVersion() const override;
+	Result write(std::ofstream& file, const Header& header, const uint8_t* data,
+		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
+		std::atomic<float>& progress) override;
 
 private:
 

@@ -101,11 +101,11 @@ fsi::Result fsi::Writer::open(const std::filesystem::path& path, const Header& h
 	m_file.write((char*)(expectedFormatSignature), sizeof(expectedFormatSignature));
 
 	// Write version
-	uint32_t version = formatVersion();
+	uint32_t version = static_cast<uint32_t>(formatVersion());
 	m_file.write((char*)(&version), sizeof(uint32_t));
 
-	// Read the rest of the header, immediately after the format version
-	Result result = openImpl();
+	// Write the rest of the header specific to the file version
+	Result result = open(m_file, m_header);
 	if (result != Result::Code::Success)
 	{
 		close();
@@ -143,7 +143,8 @@ fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgre
 	step = thumbWidth * thumbChannels;
 #endif
 
-	Result result = writeImpl(data, paused, canceled, progress);
+	// Write the data specific to the file version
+	Result result = write(m_file, m_header, data, paused, canceled, progress);
 	if (result != Result::Code::Success)
 	{
 		progressThread.join();
