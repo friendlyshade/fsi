@@ -18,25 +18,6 @@
 
 namespace fsi { class Writer; class Writer; }
 
-/*class FSI_CORE_API fsi::WriterCreator
-{
-public:
-
-	Writer();
-
-	~Writer();
-
-public:
-
-	fsi::Result open();
-
-	void close();
-
-private:
-
-	std::unique_ptr<WriterImpl> m_impl;
-};*/
-
 class FSI_CORE_API fsi::Writer
 {
 public:
@@ -65,8 +46,11 @@ public:
 
 	/** @brief Writes image data to FSI file.
 
+	IMPORTANT: The "step" parameter is not supported yet but it's being documented for future
+	implementation.
+
 	The function write writes the image bytes and optionally a thumbnail to the file. The thumbnail is
-	generated automatically from the image data.
+	generated automatically from the image data if Header::hasThumb is true.
 
 	The step in bytes is calculated as follow:
 	@code
@@ -76,11 +60,16 @@ public:
 	sizeof operator as eg., sizeof(uint16_t) for Depth::Uint16, or sizeof(float) for Depth::Float32.
 
 	@param data The image data.
+	@param step The image step/stride is the number of channels per pixel between the start of one row
+	and the start of the next row in memory. Useful when the image is a shallow copy of another or the
+	image has padding. A shallow copy is usually called "sub-image" or "sub-matrix" by image processing
+	libraries. The step is usually calculated as: width*channels + padding. If 0 is passed as the step,
+	it will be calculated from the header information as: width*channels without padding.
 	@param reportProgressCB The function is called when the progress of the operation is updated. It
 	which can additionally be used for pausing, resuming and canceling the operation.
 	@param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
 	of an instance of opaquePointer is required.
-	*/
+	 */
 	Result write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 

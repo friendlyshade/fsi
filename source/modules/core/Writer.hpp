@@ -28,24 +28,6 @@
 	fsi::Header originalHeader;
 #endif
 
-/*fsi::Writer::Writer()
-{
-}
-
-inline fsi::Writer::~Writer()
-{
-	close();
-}
-
-fsi::Result fsi::Writer::open()
-{
-}
-
-inline void fsi::Writer::close()
-{
-	m_impl->close();
-}*/
-
 std::unique_ptr<fsi::Writer> fsi::Writer::createWriter(FormatVersion formatVersion)
 {
 	if (formatVersion == FormatVersion::V1)
