@@ -48,6 +48,16 @@ fsi::Writer::~Writer()
 {
 }
 
+fsi::Header fsi::Writer::header()
+{
+	return m_impl->header();
+}
+
+fsi::FormatVersion fsi::Writer::formatVersion()
+{
+	return m_impl->formatVersion();
+}
+
 fsi::Result fsi::Writer::open(const std::filesystem::path& path, const Header& header)
 {
 	return m_impl->open(path, header);

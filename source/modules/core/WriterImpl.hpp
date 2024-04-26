@@ -35,6 +35,11 @@ fsi::WriterImpl::~WriterImpl()
 	close();
 }
 
+fsi::Header fsi::WriterImpl::header()
+{
+	return m_header;
+}
+
 fsi::Result fsi::WriterImpl::open(const std::filesystem::path& path, const Header& header)
 {
 	// Check file extension

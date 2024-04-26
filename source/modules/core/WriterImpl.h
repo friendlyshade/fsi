@@ -28,16 +28,18 @@ public:
 
 public:
 
+	Header header();
+
+	virtual FormatVersion formatVersion() = 0;
+
+public:
+
 	Result open(const std::filesystem::path& path, const Header& header);
 
 	Result write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
-
-public:
-
-	virtual FormatVersion formatVersion() = 0;
 
 protected:
 

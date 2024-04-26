@@ -29,6 +29,12 @@ public:
 
 public:
 
+	Header header();
+
+	virtual FormatVersion formatVersion() = 0;
+
+public:
+
 	Result open(const std::filesystem::path& path);
 
 	Result read(uint8_t* data, uint8_t* thumbData = nullptr,
@@ -36,12 +42,6 @@ public:
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
-
-public:
-
-	Header header();
-
-	virtual FormatVersion formatVersion() = 0;
 
 private:
 

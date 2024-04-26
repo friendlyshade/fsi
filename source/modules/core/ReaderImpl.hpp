@@ -22,6 +22,11 @@ fsi::ReaderImpl::~ReaderImpl()
 	close();
 }
 
+fsi::Header fsi::ReaderImpl::header()
+{
+	return m_header;
+}
+
 fsi::Result fsi::ReaderImpl::open(const std::filesystem::path& path)
 {
 	// Check file extension
@@ -112,9 +117,4 @@ void fsi::ReaderImpl::close()
 {
 	if (m_file.is_open())
 		m_file.close();
-}
-
-fsi::Header fsi::ReaderImpl::header()
-{
-	return m_header;
 }
