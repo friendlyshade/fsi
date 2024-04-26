@@ -5,4 +5,4 @@
 // FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
 // file, you can obtain one at https://opensource.org/license/mit.
 
-#include "../WriterV2.hpp"
+#include "../WriterImpl.hpp"

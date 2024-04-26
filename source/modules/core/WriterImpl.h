@@ -15,23 +15,16 @@
 #include "Result.h"
 #include <filesystem>
 #include <fstream>
-#include <memory>
 
-namespace fsi { class Writer; class WriterImpl; }
+namespace fsi { class WriterImpl; }
 
-class FSI_CORE_API fsi::Writer
+class FSI_CORE_API fsi::WriterImpl
 {
 public:
 
-	Writer(FormatVersion formatVersion);
+	WriterImpl();
 
-	~Writer();
-
-public:
-
-	Header header();
-
-	FormatVersion formatVersion();
+	virtual ~WriterImpl();
 
 public:
 
@@ -74,13 +67,27 @@ public:
 
 	void close();
 
+public:
+
+	virtual FormatVersion formatVersion() = 0;
+
+protected:
+
+	virtual Result open(std::ofstream& file, Header& header) = 0;
+
+	virtual Result write(std::ofstream& file, const Header& header, const uint8_t* data,
+		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
+		std::atomic<float>& progress) = 0;
+
 private:
 
-	std::unique_ptr<WriterImpl> m_impl;
+	Header m_header;
 
-	FSI_DISABLE_COPY_MOVE(Writer);
+	std::ofstream m_file;
+
+	std::filesystem::path m_path;
 };
 
 #if FSI_CORE_HEADERONLY
-#include "Writer.hpp"
+#include "WriterImpl.hpp"
 #endif

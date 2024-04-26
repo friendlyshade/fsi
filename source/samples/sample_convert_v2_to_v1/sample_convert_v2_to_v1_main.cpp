@@ -171,7 +171,7 @@ int main()
 		headerWriter.depth = image.depth;
 		headerWriter.hasThumb = true;
 
-		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(fsi::FormatVersion::V1);
+		std::unique_ptr<fsi::WriterImpl> writer = fsi::WriterImpl::createWriter(fsi::FormatVersion::V1);
 
 		result = writer->open(pathPair.second, headerWriter);
 		if (result != fsi::Result::Code::Success)

@@ -190,9 +190,9 @@ int main()
 		headerWriter.depth = image.depth;
 		headerWriter.hasThumb = true;
 
-		std::unique_ptr<Writer> writer = Writer::createWriter(FormatVersion::V2);
+		Writer writer(FormatVersion::V2);
 
-		result = writer->open(pathPair.second, headerWriter);
+		result = writer.open(pathPair.second, headerWriter);
 		if (result != Result::Code::Success)
 		{
 			cout << result.message() << "\n";
@@ -200,14 +200,14 @@ int main()
 		}
 
 		Timer timer; timer.start();
-		result = writer->write(image.data, progressCallback);
+		result = writer.write(image.data, progressCallback);
 		if (result != Result::Code::Success)
 		{
 			cout << result.message() << "\n";
 			return 1;
 		}
 
-		writer->close();
+		writer.close();
 
 		cout << "Output (v2) written successfully in " << timer.elapsedMs() << " ms\n";
 	}

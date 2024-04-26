@@ -193,7 +193,7 @@ int main()
 		headerWriter.channels = image.channels;
 		headerWriter.depth = image.depth;
 
-		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(fsi::FormatVersion::V1);
+		std::unique_ptr<fsi::WriterImpl> writer = fsi::WriterImpl::createWriter(fsi::FormatVersion::V1);
 
 		result = writer->open(outV1Path, headerWriter);
 		if (result != fsi::Result::Code::Success)
@@ -234,7 +234,7 @@ int main()
 		headerWriter.depth = image.depth;
 		headerWriter.hasThumb = false;
 
-		std::unique_ptr<fsi::Writer> writer = fsi::Writer::createWriter(fsi::FormatVersion::V2);
+		std::unique_ptr<fsi::WriterImpl> writer = fsi::WriterImpl::createWriter(fsi::FormatVersion::V2);
 
 		result = writer->open(outV2Path, headerWriter);
 		if (result != fsi::Result::Code::Success)

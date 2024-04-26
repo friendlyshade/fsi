@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "WriterV2.h"
+#include "WriterImplV2.h"
 #include "consts.h"
 #include "proc.h"
 #include <iostream>
@@ -15,12 +15,12 @@
 #include <algorithm>
 #include <vector>
 
-fsi::FormatVersion fsi::WriterV2::formatVersion()
+fsi::FormatVersion fsi::WriterImplV2::formatVersion()
 {
 	return FormatVersion::V2;
 }
 
-fsi::Result fsi::WriterV2::open(std::ofstream& file, Header& header)
+fsi::Result fsi::WriterImplV2::open(std::ofstream& file, Header& header)
 {
 	// --- Write image header ---
 	{
@@ -74,7 +74,7 @@ fsi::Result fsi::WriterV2::open(std::ofstream& file, Header& header)
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::WriterV2::write(std::ofstream& file, const Header& header, const uint8_t* data,
+fsi::Result fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const uint8_t* data,
 	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
 	// --- Write thumbnail data ---
@@ -135,7 +135,7 @@ fsi::Result fsi::WriterV2::write(std::ofstream& file, const Header& header, cons
 	return Result::Code::Success;
 }
 
-void fsi::WriterV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight,
+void fsi::WriterImplV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight,
 	uint16_t& thumbWidth, uint16_t& thumbHeight)
 {
 	const uint16_t thumbnailSize = 256;

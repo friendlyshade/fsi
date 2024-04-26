@@ -9,7 +9,7 @@
 
 #include "fsi_core_exports.h"
 #include "Depth.hpp"
-#include "Writer.h"
+#include "WriterImpl.h"
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
@@ -17,9 +17,9 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fsi { class WriterV2; }
+namespace fsi { class WriterImplV1; }
 
-class FSI_CORE_API fsi::WriterV2 : public Writer
+class FSI_CORE_API fsi::WriterImplV1 : public WriterImpl
 {
 public:
 
@@ -32,13 +32,8 @@ private:
 	Result write(std::ofstream& file, const Header& header, const uint8_t* data,
 		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 		std::atomic<float>& progress) override;
-
-private:
-
-	void calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight, uint16_t& thumbWidth,
-		uint16_t& thumbHeight);
 };
 
 #if FSI_CORE_HEADERONLY
-#include "WriterV2.hpp"
+#include "WriterV1.hpp"
 #endif

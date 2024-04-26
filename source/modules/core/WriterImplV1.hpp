@@ -7,19 +7,19 @@
 
 #pragma once
 
-#include "WriterV1.h"
+#include "WriterImplV1.h"
 #include "consts.h"
 #include "proc.h"
 #include <iostream>
 #include <atomic>
 #include <algorithm>
 
-fsi::FormatVersion fsi::WriterV1::formatVersion()
+fsi::FormatVersion fsi::WriterImplV1::formatVersion()
 {
 	return FormatVersion::V1;
 }
 
-fsi::Result fsi::WriterV1::open(std::ofstream& file, Header& header)
+fsi::Result fsi::WriterImplV1::open(std::ofstream& file, Header& header)
 {
 	uint32_t depth = static_cast<uint8_t>(header.depth);
 
@@ -51,7 +51,7 @@ fsi::Result fsi::WriterV1::open(std::ofstream& file, Header& header)
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::WriterV1::write(std::ofstream& file, const Header& header, const uint8_t* data,
+fsi::Result fsi::WriterImplV1::write(std::ofstream& file, const Header& header, const uint8_t* data,
 	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
 	const uint64_t depthSize = sizeOfDepth(header.depth);
