@@ -8,7 +8,7 @@
 #pragma once
 
 #include "fsi_core_exports.h"
-#include "Reader.h"
+#include "ReaderImpl.h"
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
@@ -16,10 +16,14 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fsi { class ReaderV1; }
+namespace fsi { class ReaderImplV2; }
 
-class FSI_CORE_API fsi::ReaderV1 : public Reader
+class FSI_CORE_API fsi::ReaderImplV2 : public ReaderImpl
 {
+public:
+
+	ReaderImplV2();
+
 public:
 
 	FormatVersion formatVersion() override;
@@ -31,8 +35,13 @@ private:
 	Result read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
 		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 		std::atomic<float>& progress) override;
+
+private:
+
+	FSI_DISABLE_COPY_MOVE(ReaderImplV2);
+
 };
 
 #if FSI_CORE_HEADERONLY
-#include "ReaderV1.hpp"
+#include "ReaderImplV2.hpp"
 #endif

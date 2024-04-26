@@ -17,21 +17,15 @@
 #include <fstream>
 #include <memory>
 
-namespace fsi { class Reader; class ReaderImpl; }
+namespace fsi { class ReaderImpl; }
 
-class FSI_CORE_API fsi::Reader
+class FSI_CORE_API fsi::ReaderImpl
 {
 public:
 
-	Reader();
-
-	~Reader();
-
-public:
-
-	Header header();
-
-	virtual FormatVersion formatVersion();
+	ReaderImpl();
+	
+	virtual ~ReaderImpl();
 
 public:
 
@@ -43,13 +37,33 @@ public:
 
 	void close();
 
+public:
+
+	Header header();
+
+	virtual FormatVersion formatVersion() = 0;
+
 private:
 
-	std::unique_ptr<ReaderImpl> m_impl;
+	virtual Result open(std::ifstream& file, Header& header) = 0;
 
-	FSI_DISABLE_COPY_MOVE(Reader);
+	virtual Result read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
+		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
+		std::atomic<float>& progress) = 0;
+
+private:
+
+	Header m_header;
+
+	FormatVersion m_formatVersion;
+
+	std::ifstream m_file;
+
+	std::filesystem::path m_path;
+
+	FSI_DISABLE_COPY_MOVE(ReaderImpl);
 };
 
 #if FSI_CORE_HEADERONLY
-#include "Reader.hpp"
+#include "ReaderImpl.hpp"
 #endif

@@ -127,7 +127,7 @@ int main()
 	{
 		cout << "Reading input \"" << pathPair.first << "\"...\n";
 
-		fsi::Reader reader;
+		fsi::ReaderImpl reader;
 		result = reader.open(pathPair.first);
 		if (result != fsi::Result::Code::Success)
 		{

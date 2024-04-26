@@ -9,14 +9,29 @@
 
 #include "Reader.h"
 #include "consts.h"
+#include "ReaderImpl.h"
+#include "ReaderImplV1.h"
+#include "ReaderImplV2.h"
 #include <iostream>
 #include <atomic>
+#include <string>
 
-fsi::Reader::Reader() {}
+fsi::Reader::Reader()
+{
+}
 
 fsi::Reader::~Reader()
 {
-	close();
+}
+
+fsi::Header fsi::Reader::header()
+{
+	return m_impl->header();
+}
+
+fsi::FormatVersion fsi::Reader::formatVersion()
+{
+	return m_impl->formatVersion();
 }
 
 fsi::Result fsi::Reader::open(const std::filesystem::path& path)
@@ -25,18 +40,15 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	if (path.extension() != expectedFileExtension)
 		return Result::Code::InvalidFileExtension;
 
-	// Store path
-	m_path = path;
-
 	// Open file
-	m_file = std::ifstream(path, std::ios::binary);
-	if (m_file.fail())
+	std::ifstream file = std::ifstream(path, std::ios::binary);
+	if (file.fail())
 		return Result::Code::FailedToOpenFile;
 
 	// Read and check signature
 	const uint8_t formatSignature[sizeof(expectedFormatSignature)] = {};
 	{
-		m_file.read((char*)formatSignature, sizeof(expectedFormatSignature));
+		file.read((char*)formatSignature, sizeof(expectedFormatSignature));
 
 		for (size_t c = 0; c < sizeof(expectedFormatSignature); c++)
 		{
@@ -49,56 +61,36 @@ fsi::Result fsi::Reader::open(const std::filesystem::path& path)
 	}
 
 	// Read the version of the file specification
-	m_file.read((char*)(&m_formatVersion), sizeof(uint32_t));
+	FormatVersion formatVersion;
+	file.read((char*)(&formatVersion), sizeof(uint32_t));
 
-	// Read the rest of the header specific to the file version
-	Result result = open(m_file, m_header);
-	if (result != Result::Code::Success)
+	file.close();
+
+	switch (formatVersion)
 	{
-		close();
-		return result;
+	case fsi::FormatVersion::V1:
+		m_impl = std::make_unique<ReaderImplV1>();
+		break;
+	case fsi::FormatVersion::V2:
+		m_impl = std::make_unique<ReaderImplV2>();
+		break;
+	default:
+		return { Result::Code::InvalidFormatVersion, "Version "
+			+ std::to_string(static_cast<uint32_t>(formatVersion))
+			+ " is not a valid FSI format version" };
+		break;
 	}
 
-	return Result::Code::Success;
+	return m_impl->open(path);
 }
 
 fsi::Result fsi::Reader::read(uint8_t* data, uint8_t* thumbData,
 	ProgressThread::ReportProgressCB reportProgressCB, void* reportProgressOpaquePtr)
 {
-	if (!m_file.is_open())
-		return Result::Code::FileIsNotOpen;
-
-	std::atomic<bool> canceled = false;
-	std::atomic<bool> paused = false;
-	std::atomic<float> progress = 0.0f;
-	ProgressThread progressThread(reportProgressOpaquePtr, reportProgressCB,
-		[&progress]() { return progress.load(std::memory_order_relaxed); },
-		[&canceled]() { canceled = true; },
-		[&paused]() { paused = true; },
-		[&paused]() { paused = false; },
-		progressCallbackInterval);
-
-	// Read the data specific to the file version
-	Result result = read(m_file, m_header, data, thumbData, paused, canceled, progress);
-	if (result != Result::Code::Success)
-	{
-		progressThread.join();
-		close();
-		return result;
-	}
-
-	progressThread.join(true);
-	close();
-	return Result::Code::Success;
+	return m_impl->read(data, thumbData, reportProgressCB, reportProgressOpaquePtr);
 }
 
 void fsi::Reader::close()
 {
-	if (m_file.is_open())
-		m_file.close();
-}
-
-fsi::Header fsi::Reader::header()
-{
-	return m_header;
+	return m_impl->close();
 }

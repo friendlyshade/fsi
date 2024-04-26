@@ -7,17 +7,22 @@
 
 #pragma once
 
-#include "ReaderV2.h"
+#include "ReaderImplV2.h"
 #include "Depth.hpp"
 #include "consts.h"
 #include <iostream>
 
-fsi::FormatVersion fsi::ReaderV2::formatVersion()
+fsi::ReaderImplV2::ReaderImplV2()
+	: ReaderImpl()
+{
+}
+
+fsi::FormatVersion fsi::ReaderImplV2::formatVersion()
 {
 	return FormatVersion::V2;
 }
 
-fsi::Result fsi::ReaderV2::open(std::ifstream& file, Header& header)
+fsi::Result fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 {
 	uint32_t width;
 	uint32_t height;
@@ -65,7 +70,7 @@ fsi::Result fsi::ReaderV2::open(std::ifstream& file, Header& header)
 	return Result::Code::Success;
 }
 
-fsi::Result fsi::ReaderV2::read(std::ifstream& file, const Header& header, uint8_t* data,
+fsi::Result fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, uint8_t* data,
 	uint8_t* thumbData, const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 	std::atomic<float>& progress)
 {

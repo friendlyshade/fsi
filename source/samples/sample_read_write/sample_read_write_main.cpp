@@ -130,7 +130,7 @@ int main()
 
 	cout << "Reading input...\n";
 
-	fsi::Reader reader;
+	fsi::ReaderImpl reader;
 
 	result = reader.open(inPath);
 	if (result != fsi::Result::Code::Success)
