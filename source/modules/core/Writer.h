@@ -28,7 +28,10 @@ public:
 	~Writer();
 
 public:
-
+	
+	/** @brief Returns the header containing the image properties like dimensions, number of channels and
+	bit-depth.
+	*/
 	Header header();
 
 	FormatVersion formatVersion();
@@ -43,12 +46,12 @@ public:
 	*/
 	Result open(const std::filesystem::path& path, const Header& header);
 
-	/** @brief Writes image data to FSI file.
+	/** @brief Writes image data to a FSI file.
 
 	IMPORTANT: The "step" parameter is not supported yet but it's being documented for future
 	implementation.
 
-	The function write writes the image bytes and optionally a thumbnail to the file. The thumbnail is
+	The function writes the image data and optionally a thumbnail to the file. The thumbnail is
 	generated automatically from the image data if Header::hasThumb is true.
 
 	The step in bytes is calculated as follow:
@@ -64,8 +67,8 @@ public:
 	image has padding. A shallow copy is usually called "sub-image" or "sub-matrix" by image processing
 	libraries. The step is usually calculated as: width*channels + padding. If 0 is passed as the step,
 	it will be calculated from the header information as: width*channels without padding.
-	@param reportProgressCB The function is called when the progress of the operation is updated. It
-	which can additionally be used for pausing, resuming and canceling the operation.
+	@param reportProgressCB The function is called when the progress of the operation is updated. It can
+	additionally be used for pausing, resuming and canceling the operation.
 	@param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
 	of an instance of opaquePointer is required.
 	 */

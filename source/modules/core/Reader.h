@@ -29,14 +29,31 @@ public:
 
 public:
 
+	/** @brief Returns the header containing the image properties like dimensions, number of channels and
+	bit-depth.
+	*/
 	Header header();
 
 	virtual FormatVersion formatVersion();
 
 public:
+	/** @brief Opens an FSI file and reads the header information.
 
+	@param path The path to the image file.
+	*/
 	Result open(const std::filesystem::path& path);
 
+	/** @brief Reads image data from a FSI file.
+
+	The function reads the image bytes and optionally a thumbnail from the file. If a thumbnail is
+	present Header::hasThumb will be true.
+
+	@param data The image data.
+	@param reportProgressCB The function is called when the progress of the operation is updated. It can
+	additionally be used for pausing, resuming and canceling the operation.
+	@param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
+	of an instance of opaquePointer is required.
+	*/
 	Result read(uint8_t* data, uint8_t* thumbData = nullptr,
 		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
