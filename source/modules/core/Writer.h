@@ -34,6 +34,8 @@ public:
 	*/
 	Header header();
 
+	/** @brief Returns the version of the FSI specification
+	*/
 	FormatVersion formatVersion();
 
 public:
