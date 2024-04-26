@@ -34,7 +34,7 @@ public:
 	*/
 	Header header();
 
-	virtual FormatVersion formatVersion();
+	FormatVersion formatVersion();
 
 public:
 	/** @brief Opens an FSI file and reads the header information.
