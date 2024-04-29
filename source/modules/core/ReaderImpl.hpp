@@ -8,6 +8,8 @@
 #pragma once
 
 #include "ReaderImpl.h"
+#include "ReaderImplV1.h"
+#include "ReaderImplV2.h"
 #include "consts.h"
 #include <iostream>
 #include <atomic>
@@ -24,14 +26,16 @@ fsi::ReaderImpl::~ReaderImpl()
 
 fsi::Header fsi::ReaderImpl::header()
 {
+	if (!m_file.is_open())
+		throw ExceptionFileIsNotOpen("The file must be opened before accessing the Header");
 	return m_header;
 }
 
-fsi::Result fsi::ReaderImpl::open(const std::filesystem::path& path)
+void fsi::ReaderImpl::open(const std::filesystem::path& path)
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
-		return Result::Code::InvalidFileExtension;
+		throw ExceptionInvalidFileExtension();
 
 	// Store path
 	m_path = path;
@@ -39,7 +43,7 @@ fsi::Result fsi::ReaderImpl::open(const std::filesystem::path& path)
 	// Open file
 	m_file = std::ifstream(path, std::ios::binary);
 	if (m_file.fail())
-		return Result::Code::FailedToOpenFile;
+		throw ExceptionFailedToOpenFile();
 
 	// Read and check signature
 	const uint8_t formatSignature[sizeof(expectedFormatSignature)] = {};
@@ -51,43 +55,49 @@ fsi::Result fsi::ReaderImpl::open(const std::filesystem::path& path)
 			if (formatSignature[c] != expectedFormatSignature[c])
 			{
 				close();
-				return Result::Code::InvalidSignature;
+				throw ExceptionInvalidSignature();
 			}
 		}
 	}
 
 	// Read the version of the file specification
-	m_file.read((char*)(&m_formatVersion), sizeof(uint32_t));
+	FormatVersion formatVersionFromFile;
+	m_file.read((char*)(&formatVersionFromFile), sizeof(uint32_t));
 	
-	switch (m_formatVersion)
+	switch (formatVersionFromFile)
 	{
 	case fsi::FormatVersion::V1:
+		if (formatVersion() != formatVersionFromFile)
+			ExceptionUnexpectedFormatVersion("Concrete instance of ReaderImpl must be ReaderImplV1");
 		break;
 	case fsi::FormatVersion::V2:
+		if (formatVersion() != formatVersionFromFile)
+			ExceptionUnexpectedFormatVersion("Concrete instance of ReaderImpl must be ReaderImplV2");
 		break;
 	default:
-		return { Result::Code::InvalidFormatVersion, "Version "
-			+ std::to_string(static_cast<uint32_t>(m_formatVersion))
-			+ " is not a valid FSI format version" };
-		break;
+		throw ExceptionInvalidFormatVersion("Version "
+			+ std::to_string(static_cast<uint32_t>(formatVersionFromFile))
+			+ " is not a valid FSI format version");
 	}
 
 	// Read the rest of the header specific to the file version
-	Result result = open(m_file, m_header);
-	if (result != Result::Code::Success)
+	try
 	{
-		close();
-		return result;
+		open(m_file, m_header);
 	}
-
-	return Result::Code::Success;
+	catch (...)
+	{
+		// Close file and rethrow the exception
+		close();
+		throw;
+	}
 }
 
-fsi::Result fsi::ReaderImpl::read(uint8_t* data, uint8_t* thumbData,
+bool fsi::ReaderImpl::read(uint8_t* data, uint8_t* thumbData,
 	ProgressThread::ReportProgressCB reportProgressCB, void* reportProgressOpaquePtr)
 {
 	if (!m_file.is_open())
-		return Result::Code::FileIsNotOpen;
+		throw ExceptionFileIsNotOpen("The file must be opened before reading can be attempted");
 
 	std::atomic<bool> canceled = false;
 	std::atomic<bool> paused = false;
@@ -100,17 +110,21 @@ fsi::Result fsi::ReaderImpl::read(uint8_t* data, uint8_t* thumbData,
 		progressCallbackInterval);
 
 	// Read the data specific to the file version
-	Result result = read(m_file, m_header, data, thumbData, paused, canceled, progress);
-	if (result != Result::Code::Success)
+	try
 	{
-		progressThread.join();
+		read(m_file, m_header, data, thumbData, paused, canceled, progress);
+	}
+	catch (...)
+	{
+		// Join the progress thread, close file and rethrow the exception
+		progressThread.join(false);
 		close();
-		return result;
+		throw;
 	}
 
-	progressThread.join(true);
+	progressThread.join(!canceled);
 	close();
-	return Result::Code::Success;
+	return canceled;
 }
 
 void fsi::ReaderImpl::close()

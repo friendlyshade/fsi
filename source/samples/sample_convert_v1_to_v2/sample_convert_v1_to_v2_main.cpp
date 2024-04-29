@@ -7,6 +7,7 @@
 
 #include "../../modules/core/Depth.hpp"
 #include "../../modules/core/ProgressThread.h"
+#include "../../modules/core/Exception.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
 #include "../../modules/core/Timer.h"
@@ -92,9 +93,9 @@ int main()
 {
 	using std::cout;
 	using fsi::Depth;
-	using fsi::Result;
 	using fsi::Header;
 	using fsi::FormatVersion;
+	using fsi::Exception;
 	using fsi::Reader;
 	using fsi::Writer;
 	using fsi::Timer;
@@ -135,8 +136,6 @@ int main()
 		},
 	};
 
-	Result result;
-
 	// --- Read ---
 
 	for (auto& pathPair : pathPairs)
@@ -144,10 +143,13 @@ int main()
 		cout << "Reading input \"" << pathPair.first << "\"...\n";
 
 		Reader reader;
-		result = reader.open(pathPair.first);
-		if (result != Result::Code::Success)
+		try
 		{
-			cout << result.message() << "\n";
+			reader.open(pathPair.first);
+		}
+		catch (Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
@@ -158,10 +160,13 @@ int main()
 		if (headerReader.hasThumb)
 			thumbData = new uint8_t[headerReader.thumbWidth * headerReader.thumbHeight * 4];
 
-		result = reader.read(image.data, thumbData, progressCallback);
-		if (result != Result::Code::Success)
+		try
 		{
-			cout << result.message() << "\n";
+			reader.read(image.data, thumbData, progressCallback);
+		}
+		catch (Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
@@ -192,18 +197,24 @@ int main()
 
 		Writer writer(FormatVersion::V2);
 
-		result = writer.open(pathPair.second, headerWriter);
-		if (result != Result::Code::Success)
+		try
 		{
-			cout << result.message() << "\n";
+			writer.open(pathPair.second, headerWriter);
+		}
+		catch (Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
 		Timer timer; timer.start();
-		result = writer.write(image.data, progressCallback);
-		if (result != Result::Code::Success)
+		try
 		{
-			cout << result.message() << "\n";
+			writer.write(image.data, progressCallback);
+		}
+		catch (Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 

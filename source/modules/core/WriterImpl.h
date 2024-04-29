@@ -8,11 +8,11 @@
 #pragma once
 
 #include "fsi_core_exports.h"
+#include "../global.h"
 #include "Depth.hpp"
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
-#include "Result.h"
 #include <filesystem>
 #include <fstream>
 
@@ -34,18 +34,18 @@ public:
 
 public:
 
-	Result open(const std::filesystem::path& path, const Header& header);
+	void open(const std::filesystem::path& path, const Header& header);
 
-	Result write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+	bool write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
 
 protected:
 
-	virtual Result open(std::ofstream& file, Header& header) = 0;
+	virtual void open(std::ofstream& file, Header& header) = 0;
 
-	virtual Result write(std::ofstream& file, const Header& header, const uint8_t* data,
+	virtual void write(std::ofstream& file, const Header& header, const uint8_t* data,
 		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 		std::atomic<float>& progress) = 0;
 
@@ -56,6 +56,8 @@ private:
 	std::ofstream m_file;
 
 	std::filesystem::path m_path;
+
+	FSI_DISABLE_COPY_MOVE(WriterImpl);
 };
 
 #if FSI_CORE_HEADERONLY

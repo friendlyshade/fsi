@@ -12,7 +12,6 @@
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
-#include "Result.h"
 #include <filesystem>
 #include <fstream>
 
@@ -30,9 +29,9 @@ public:
 
 private:
 
-	Result open(std::ifstream& file, Header& header) override;
+	void open(std::ifstream& file, Header& header) override;
 
-	Result read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
+	void read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
 		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 		std::atomic<float>& progress) override;
 

@@ -13,7 +13,6 @@
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
-#include "Result.h"
 #include <filesystem>
 #include <fstream>
 
@@ -27,9 +26,9 @@ public:
 
 private:
 
-	Result open(std::ofstream& file, Header& header) override;
+	void open(std::ofstream& file, Header& header) override;
 
-	Result write(std::ofstream& file, const Header& header, const uint8_t* data,
+	void write(std::ofstream& file, const Header& header, const uint8_t* data,
 		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 		std::atomic<float>& progress) override;
 };

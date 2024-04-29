@@ -10,6 +10,7 @@
 #include "WriterImpl.h"
 #include "consts.h"
 #include "proc.h"
+#include "exceptions.hpp"
 #include <iostream>
 #include <atomic>
 #include <algorithm>
@@ -40,11 +41,11 @@ fsi::Header fsi::WriterImpl::header()
 	return m_header;
 }
 
-fsi::Result fsi::WriterImpl::open(const std::filesystem::path& path, const Header& header)
+void fsi::WriterImpl::open(const std::filesystem::path& path, const Header& header)
 {
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
-		return Result::Code::InvalidFileExtension;
+		throw ExceptionInvalidFileExtension();
 
 #if WRITE_THUMB_AS_FILE
 	originalHeader.width = header.width;
@@ -67,7 +68,7 @@ fsi::Result fsi::WriterImpl::open(const std::filesystem::path& path, const Heade
 	// Open file
 	m_file = std::ofstream(m_path, std::ios::binary);
 	if (m_file.fail())
-		return Result::Code::FailedToCreateFile;
+		throw ExceptionFailedToCreateFile();
 
 	// Write signature
 	m_file.write((char*)(expectedFormatSignature), sizeof(expectedFormatSignature));
@@ -77,21 +78,23 @@ fsi::Result fsi::WriterImpl::open(const std::filesystem::path& path, const Heade
 	m_file.write((char*)(&version), sizeof(uint32_t));
 
 	// Write the rest of the header specific to the file version
-	Result result = open(m_file, m_header);
-	if (result != Result::Code::Success)
+	try
 	{
-		close();
-		return result;
+		open(m_file, m_header);
 	}
-
-	return Result::Code::Success;
+	catch (...)
+	{
+		// Close file and rethrow the exception
+		close();
+		throw;
+	}
 }
 
-fsi::Result fsi::WriterImpl::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
+bool fsi::WriterImpl::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
 	void* reportProgressOpaquePtr)
 {
 	if (!m_file.is_open())
-		return Result::Code::FileIsNotOpen;
+		throw ExceptionFileIsNotOpen("The file must be opened before writing can be attempted");
 
 	std::atomic<bool> canceled = false;
 	std::atomic<bool> paused = false;
@@ -116,17 +119,21 @@ fsi::Result fsi::WriterImpl::write(const uint8_t* data, ProgressThread::ReportPr
 #endif
 
 	// Write the data specific to the file version
-	Result result = write(m_file, m_header, data, paused, canceled, progress);
-	if (result != Result::Code::Success)
+	try
 	{
-		progressThread.join();
+		write(m_file, m_header, data, paused, canceled, progress);
+	}
+	catch (...)
+	{
+		// Join the progress thread, close file and rethrow the exception
+		progressThread.join(false);
 		close();
-		return result;
+		throw;
 	}
 
-	progressThread.join(true);
+	progressThread.join(!canceled);
 	close();
-	return Result::Code::Success;
+	return canceled;
 }
 
 void fsi::WriterImpl::close()

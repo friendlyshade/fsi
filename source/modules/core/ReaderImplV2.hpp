@@ -22,7 +22,7 @@ fsi::FormatVersion fsi::ReaderImplV2::formatVersion()
 	return FormatVersion::V2;
 }
 
-fsi::Result fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
+void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 {
 	uint32_t width;
 	uint32_t height;
@@ -39,25 +39,25 @@ fsi::Result fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 	if (!(channels >= 1 && channels <= 1048575))
 	{
 		close();
-		return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
+		throw ExceptionInvalidImageWidth("Must be an integer between 1 and 1,048,575");
 	}
 
 	if (!(width >= 1 && width <= 1048575))
 	{
 		close();
-		return { Result::Code::InvalidImageWidth, "Must be an integer between 1 and 1,048,575" };
+		throw ExceptionInvalidImageWidth("Must be an integer between 1 and 1,048,575");
 	}
 
 	if (!(height >= 1 && height <= 1048575))
 	{
 		close();
-		return { Result::Code::InvalidImageHeight, "Must be an integer between 1 and 1,048,575" };
+		throw ExceptionInvalidImageHeight("Must be an integer between 1 and 1,048,575");
 	}
 
 	if (!(depth >= 1 && depth <= 10))
 	{
 		close();
-		return { Result::Code::InvalidImageDepth, "Must be an integer between 1 and 10" };
+		throw ExceptionInvalidImageDepth("Must be an integer between 1 and 10");
 	}
 
 	header.width = width;
@@ -66,11 +66,9 @@ fsi::Result fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 	header.depth = static_cast<Depth>(depth);
 
 	header.hasThumb = hasThumb > 0;
-
-	return Result::Code::Success;
 }
 
-fsi::Result fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, uint8_t* data,
+void fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, uint8_t* data,
 	uint8_t* thumbData, const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 	std::atomic<float>& progress)
 {
@@ -113,7 +111,7 @@ fsi::Result fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, u
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 			if (canceled)
-				return Result::Code::Canceled;
+				return;
 
 			file.read((char*)(data + ptr_offset), bufferSize);
 
@@ -127,6 +125,4 @@ fsi::Result fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, u
 		size_t remainder_ptr_offset = imageSize - remainder_size;
 		file.read((char*)(data + remainder_ptr_offset), remainder_size);
 	}
-
-	return Result::Code::Success;
 }

@@ -13,6 +13,7 @@
 #include "WriterImplV2.h"
 #include "consts.h"
 #include "proc.h"
+#include "exceptions.hpp"
 #include <iostream>
 #include <atomic>
 #include <algorithm>
@@ -41,7 +42,7 @@ fsi::Writer::Writer(FormatVersion formatVersion)
 		return;
 	}
 
-	throw std::exception("Header must be castable to Header_V1 or Header_V2");
+	throw ExceptionInvalidFormatVersion("Header must be castable to Header_V1 or Header_V2");
 }
 
 fsi::Writer::~Writer()
@@ -58,12 +59,12 @@ fsi::FormatVersion fsi::Writer::formatVersion()
 	return m_impl->formatVersion();
 }
 
-fsi::Result fsi::Writer::open(const std::filesystem::path& path, const Header& header)
+void fsi::Writer::open(const std::filesystem::path& path, const Header& header)
 {
-	return m_impl->open(path, header);
+	m_impl->open(path, header);
 }
 
-fsi::Result fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
+bool fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
 	void* reportProgressOpaquePtr)
 {
 	return m_impl->write(data, reportProgressCB, reportProgressOpaquePtr);

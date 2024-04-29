@@ -12,7 +12,7 @@
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
-#include "Result.h"
+#include "exceptions.hpp"
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -35,9 +35,9 @@ public:
 
 public:
 
-	Result open(const std::filesystem::path& path);
+	void open(const std::filesystem::path& path);
 
-	Result read(uint8_t* data, uint8_t* thumbData = nullptr,
+	bool read(uint8_t* data, uint8_t* thumbData = nullptr,
 		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
@@ -45,17 +45,15 @@ public:
 
 private:
 
-	virtual Result open(std::ifstream& file, Header& header) = 0;
+	virtual void open(std::ifstream& file, Header& header) = 0;
 
-	virtual Result read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
+	virtual void read(std::ifstream& file, const Header& header, uint8_t* data, uint8_t* thumbData,
 		const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 		std::atomic<float>& progress) = 0;
 
 private:
 
 	Header m_header;
-
-	FormatVersion m_formatVersion;
 
 	std::ifstream m_file;
 

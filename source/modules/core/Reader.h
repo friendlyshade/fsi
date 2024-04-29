@@ -12,7 +12,6 @@
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
-#include "Result.h"
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -29,34 +28,38 @@ public:
 
 public:
 
+	/** @brief Reads the file header and returns the version of the FSI specification
+	*/
+	FormatVersion formatVersionFromFile(const std::filesystem::path& path);
+
 	/** @brief Returns the header containing the image properties like dimensions, number of channels and
-	bit-depth.
+	* bit-depth.
 	*/
 	Header header();
 
-	/** @brief Returns the version of the FSI specification
+	/** @brief Returns the version of the FSI specification after opening the file
 	*/
 	FormatVersion formatVersion();
 
 public:
 	/** @brief Opens an FSI file and reads the header information.
-
-	@param path The path to the image file.
+	*
+	* @param path The path to the image file.
 	*/
-	Result open(const std::filesystem::path& path);
+	void open(const std::filesystem::path& path);
 
 	/** @brief Reads image data from a FSI file.
-
-	The function reads the image bytes and optionally a thumbnail from the file. If a thumbnail is
-	present Header::hasThumb will be true.
-
-	@param data The image data.
-	@param reportProgressCB The function is called when the progress of the operation is updated. It can
-	additionally be used for pausing, resuming and canceling the operation.
-	@param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
-	of an instance of opaquePointer is required.
+	*
+	* The function reads the image bytes and optionally a thumbnail from the file. If a thumbnail is
+	* present Header::hasThumb will be true.
+	*
+	* @param data The image data.
+	* @param reportProgressCB The function is called when the progress of the operation is updated. It can
+	* additionally be used for pausing, resuming and canceling the operation.
+	* @param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
+	* of an instance of opaquePointer is required.
 	*/
-	Result read(uint8_t* data, uint8_t* thumbData = nullptr,
+	bool read(uint8_t* data, uint8_t* thumbData = nullptr,
 		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
