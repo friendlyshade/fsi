@@ -83,7 +83,7 @@ All data should be read/written in little-endian byte order.
 #### General File Structure
 | Description                                                                                                                 |          Size (in bytes)          |
 | :---                                                                                                                        |               :---:               |
-| [Header Section](#header-section)<br/>&emsp; [Image Header](#image-header)<br/>&emsp; [Thumbnail Header](#thumbnail-header) |        26<br/>22<br/>4<br/>       |
+| [Header Section](#header-section)<br/>&emsp; [Image Header](#image-header)<br/>&emsp; [Thumbnail Header](#thumbnail-header) |        26<br/>21<br/>5<br/>       |
 | [Data Section](#data-section)<br/>&emsp; [Thumbnail Data](#thumbnail-data)<br/>&emsp; [Image Data](#image-data)             | Variable<br/>262,144<br/>Variable |
 
 #### Header Section
