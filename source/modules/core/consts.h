@@ -21,7 +21,16 @@ const uint64_t progressCallbackInterval = 100ull; // in ms
 
 // Thumbnail depth (Uint8)
 const Depth thumbDepth = Depth::Uint8;
+// Thumbnail depth (Uint8)
+const uint64_t thumbSizeOfDepth = sizeOfDepth(thumbDepth);
+// Thumbnail width/height (256 px)
+const uint64_t thumbMaxDimension = 256;
 // Thumbnail channels (RGBA)
 const uint64_t thumbChannels = 4;
-
+// Thumbnail step (width*channels = 256*4)
+// const uint64_t thumbStep = thumbMaxDimension * thumbChannels;
+// Thumbnail size in bytes (height*width*channels = 256*256*4)
+const uint64_t thumbSize = thumbMaxDimension * thumbMaxDimension * thumbChannels;
+// Thumbnail size in bytes (height*width*channels*sizeOfDepth = 256*256*4*1)
+const uint64_t thumbSizeInBytes = thumbSize * thumbSizeOfDepth;
 }

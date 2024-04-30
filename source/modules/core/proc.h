@@ -37,12 +37,14 @@ namespace fsi
 			}
 		};
 
-		void generateThumbnail(const uint8_t* srcData, uint64_t srcStep, const Header& srcHeader,
-			uint8_t* dstData, uint64_t targetWidth, uint64_t targetHeight);
+		void generateThumbnail(const uint8_t* srcData, uint64_t srcWidth, uint64_t srcHeight,
+			uint64_t srcChannels, Depth srcDepth, uint64_t srcStep, uint8_t* dstData, int64_t dstStep,
+			uint64_t targetWidth, uint64_t targetHeight);
 
 		template <typename Src_T, size_t Dst_C = 4>
-		void generateThumbnail(const uint8_t* srcData, uint64_t srcStep, const Header& srcHeader,
-			uint8_t* dstData, uint64_t targetWidth, uint64_t targetHeight);
+		void generateThumbnail(const uint8_t* srcData, uint64_t srcWidth, uint64_t srcHeight,
+			uint64_t srcChannels, uint64_t srcStep, uint8_t* dstData, int64_t dstStep,
+			uint64_t targetWidth, uint64_t targetHeight);
 
 		template <typename T>
 		T remap(T src, T srcMin, T srcMax, T dstMin, T dstMax);

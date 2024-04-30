@@ -22,7 +22,7 @@ fsi::FormatVersion fsi::WriterImplV1::formatVersion()
 
 void fsi::WriterImplV1::open(std::ofstream& file, Header& header)
 {
-	uint32_t depth = static_cast<uint8_t>(header.depth);
+	uint32_t depth = static_cast<uint32_t>(header.depth);
 
 	if (!(header.channels >= 1 && header.channels <= 1048575))
 	{

@@ -8,13 +8,15 @@
 #pragma once
 
 #include "proc.h"
+#include "consts.h"
 #include <algorithm>
 #include <iostream>
 
 template <typename Src_T, size_t Dst_C>
 inline
-void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, const Header& srcHeader,
-	uint8_t* dstData, uint64_t targetWidth, uint64_t targetHeight)
+void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcWidth, uint64_t srcHeight,
+	uint64_t srcChannels, uint64_t srcStep, uint8_t* dstData, int64_t dstStep, uint64_t targetWidth,
+	uint64_t targetHeight)
 {
 	typedef uint8_t Dst_T;
 
@@ -31,8 +33,8 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, cons
 
 	assert(targetWidth > 0 && "targetWidth must be greater than 0");
 	assert(targetHeight > 0 && "targetHeight must be greater than 0");
-	assert(targetWidth <= srcHeader.width && "targetWidth must be less or equal to src width");
-	assert(targetHeight <= srcHeader.height && "targetHeight must be less or equal to src height");
+	assert(targetWidth <= srcWidth && "targetWidth must be less or equal to src width");
+	assert(targetHeight <= srcHeight && "targetHeight must be less or equal to src height");
 
 	// -- Actual algorithm --
 
@@ -42,18 +44,18 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, cons
 	double dst_max = static_cast<double>(std::numeric_limits<Dst_T>::max());
 
 	const int64_t src_S = static_cast<int64_t>(srcStep);
-	const int64_t dst_S = static_cast<int64_t>(targetWidth*Dst_C);
-	const int64_t src_W = static_cast<int64_t>(srcHeader.width);
+	const int64_t dst_S = static_cast<int64_t>(dstStep);
+	const int64_t src_W = static_cast<int64_t>(srcWidth);
 	const int64_t dst_W = static_cast<int64_t>(targetWidth);
-	const int64_t src_H = static_cast<int64_t>(srcHeader.height);
+	const int64_t src_H = static_cast<int64_t>(srcHeight);
 	const int64_t dst_H = static_cast<int64_t>(targetHeight);
 	const int64_t src_HS = src_H * src_S;
 	const int64_t dst_HS = dst_H * dst_S;
-	const int64_t src_C = static_cast<int64_t>(srcHeader.channels);
-	const int64_t src_WC = src_W * static_cast<int64_t>(srcHeader.channels);
+	const int64_t src_C = static_cast<int64_t>(srcChannels);
+	const int64_t src_WC = src_W * src_C;
 	const int64_t dst_WC = dst_W * static_cast<int64_t>(Dst_C);
 	const int64_t src_end = static_cast<int64_t>(src_H*src_S);
-	const int64_t dst_end = static_cast<int64_t>(targetHeight*targetWidth*Dst_C);
+	const int64_t dst_end = static_cast<int64_t>(thumbSize);
 
 	const Src_T* src_ptr = reinterpret_cast<const Src_T*>(srcData);
 	Dst_T* dst_ptr = reinterpret_cast<Dst_T*>(dstData);
@@ -67,6 +69,11 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcStep, cons
 	const int64_t kernel_width = round(width_factor);
 	const int64_t kernel_height = round(height_factor);
 	const double kernel_size = static_cast<double>(kernel_width*kernel_height);
+
+	std::cout << "dst_C: " << Dst_C << "\n";
+	std::cout << "dst_S: " << dst_S << "\n";
+	std::cout << "dst_W: " << dst_W << "\n";
+	std::cout << "dst_H: " << dst_H << "\n";
 
 #pragma omp parallel for
 	for (int64_t dst_y = 0; dst_y < dst_H; dst_y++)

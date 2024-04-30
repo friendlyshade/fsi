@@ -51,25 +51,27 @@ void fsi::WriterImplV2::open(std::ofstream& file, Header& header)
 		file.write((char*)(&header.height), sizeof(uint32_t));
 		file.write((char*)(&header.channels), sizeof(uint32_t));
 		file.write((char*)(&depth), sizeof(uint8_t));
-
-		uint8_t hasThumb = header.hasThumb ? 1 : 0;
-		file.write((char*)(&hasThumb), sizeof(uint8_t));
 	}
 
 	// --- Write thumbnail header ---
 	{
 		// Write "has thumbnail"
-		uint8_t generateThumbnailInt = header.hasThumb ? 1 : 0;
-		file.write((char*)(&generateThumbnailInt), sizeof(uint8_t));
+		uint8_t hasThumb = header.hasThumb ? 1 : 0;
+		file.write((char*)(&hasThumb), sizeof(uint8_t));
 
 		// Write thumbnail dimensions
 		if (header.hasThumb)
 		{
 			calcThumbDimensions(header.width, header.height, header.thumbWidth,
 				header.thumbHeight);
-			file.write((char*)(&header.thumbWidth), sizeof(uint16_t));
-			file.write((char*)(&header.thumbHeight), sizeof(uint16_t));
 		}
+		else
+		{
+			header.thumbWidth = 0;
+			header.thumbHeight = 0;
+		}
+		file.write((char*)(&header.thumbWidth), sizeof(uint16_t));
+		file.write((char*)(&header.thumbHeight), sizeof(uint16_t));
 	}
 }
 
@@ -78,15 +80,16 @@ void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const u
 {
 	// --- Write thumbnail data ---
 	{
+		std::vector<uint8_t> thumb(thumbSizeInBytes);
 		if (header.hasThumb)
 		{
-			const uint64_t thumbSize = header.thumbWidth * header.thumbHeight * thumbChannels * sizeOfDepth(thumbDepth);
-			std::vector<uint8_t> thumb(thumbSize);
-			
+			// const uint64_t thumbSize = header.thumbWidth * header.thumbHeight * thumbChannels * sizeOfDepth(thumbDepth);
+
 			const uint64_t step = header.width * header.channels;
 
 			// fsi::Timer timer; timer.start();
-			proc::generateThumbnail(data, step, header, thumb.data(), header.thumbWidth,
+			proc::generateThumbnail(data, header.width, header.height, header.channels, header.depth,
+				step, thumb.data(), header.thumbWidth*thumbChannels, header.thumbWidth,
 				header.thumbHeight);
 			// std::cout << "Thumbnail generated in " << timer.elapsedMs() << " ms\n";
 
@@ -95,8 +98,9 @@ void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const u
 			data = thumbData;
 			step = thumbWidth * thumbChannels;
 #endif
-			file.write((char*)(thumb.data()), thumbSize);
 		}
+
+		file.write((char*)(thumb.data()), thumbSizeInBytes);
 	}
 	
 	// --- Write image data ---

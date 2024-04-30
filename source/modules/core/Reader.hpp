@@ -27,8 +27,6 @@ fsi::Reader::~Reader()
 
 fsi::FormatVersion fsi::Reader::formatVersionFromFile(const std::filesystem::path& path)
 {
-	// TODO: Convert all these "Results" to exceptions:
-
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
 		throw ExceptionInvalidFileExtension();
@@ -47,7 +45,7 @@ fsi::FormatVersion fsi::Reader::formatVersionFromFile(const std::filesystem::pat
 		{
 			if (formatSignature[c] != expectedFormatSignature[c])
 			{
-				close();
+				file.close();
 				throw ExceptionInvalidSignature();
 			}
 		}

@@ -30,7 +30,7 @@ public:
 
 	/** @brief Reads the file header and returns the version of the FSI specification
 	*/
-	FormatVersion formatVersionFromFile(const std::filesystem::path& path);
+	static FormatVersion formatVersionFromFile(const std::filesystem::path& path);
 
 	/** @brief Returns the header containing the image properties like dimensions, number of channels and
 	* bit-depth.

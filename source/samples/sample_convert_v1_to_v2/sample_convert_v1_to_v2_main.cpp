@@ -156,13 +156,13 @@ int main()
 		Header headerReader = reader.header();
 
 		Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
-		uint8_t* thumbData = nullptr;
+		std::vector<uint8_t> thumb;
 		if (headerReader.hasThumb)
-			thumbData = new uint8_t[headerReader.thumbWidth * headerReader.thumbHeight * 4];
+			thumb = std::vector<uint8_t>(headerReader.thumbWidth * headerReader.thumbHeight * 4);
 
 		try
 		{
-			reader.read(image.data, thumbData, progressCallback);
+			reader.read(image.data, headerReader.hasThumb ? thumb.data() : nullptr, progressCallback);
 		}
 		catch (Exception& e)
 		{

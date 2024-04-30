@@ -34,7 +34,7 @@ enum class Depth : uint8_t
 	Float64 = 10,
 };
 
-inline uint64_t sizeOfDepth(Depth depth)
+inline constexpr uint64_t sizeOfDepth(Depth depth)
 {
 	switch (depth)
 	{

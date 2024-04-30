@@ -28,13 +28,11 @@ void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 	uint32_t height;
 	uint32_t channels;
 	uint8_t depth;
-	uint8_t hasThumb;
 
 	file.read((char*)(&width), sizeof(uint32_t));
 	file.read((char*)(&height), sizeof(uint32_t));
 	file.read((char*)(&channels), sizeof(uint32_t));
 	file.read((char*)(&depth), sizeof(uint8_t));
-	file.read((char*)(&hasThumb), sizeof(uint8_t));
 
 	if (!(channels >= 1 && channels <= 1048575))
 	{
@@ -65,33 +63,60 @@ void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 	header.channels = channels;
 	header.depth = static_cast<Depth>(depth);
 
+	uint8_t hasThumb;
+	file.read((char*)(&hasThumb), sizeof(uint8_t));
+
 	header.hasThumb = hasThumb > 0;
+	std::cout << "header.hasThumb: " << header.hasThumb << "\n";
+
+	if (header.hasThumb)
+	{
+		file.read((char*)(&header.thumbWidth), sizeof(uint16_t));
+		file.read((char*)(&header.thumbHeight), sizeof(uint16_t));
+
+		std::cout << "header.thumbWidth: " << header.thumbWidth << "\n";
+		std::cout << "header.thumbHeight: " << header.thumbHeight << "\n";
+	}
+	else
+	{
+		file.ignore(sizeof(uint16_t)*2);
+	}
 }
 
 void fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, uint8_t* data,
 	uint8_t* thumbData, const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 	std::atomic<float>& progress)
 {
-	const uint64_t thumbSize = header.thumbWidth * header.thumbHeight * thumbChannels
-		* sizeOfDepth(thumbDepth);
-
-	if (header.hasThumb)
+	// TODO: Check if the remaining size of the file equals to "thumbSize + imageSize"
+	
+	// --- Read thumbnail data ---
 	{
-		// TODO: Check if the remaining size of the file equals to "thumbSize + imageSize"
+		if (header.hasThumb && thumbData)
+		{
+			uint64_t usedThumbSizeInBytes = header.thumbWidth * header.thumbHeight * thumbChannels
+				* thumbSizeOfDepth;
+			file.read((char*)(thumbData), usedThumbSizeInBytes);
 
-		if (thumbData)
-			file.read((char*)(&thumbData), sizeof(thumbSize));
+			// Skip remaining non-read data
+			uint64_t remainingBytes = thumbSizeInBytes - usedThumbSizeInBytes;
+			if (remainingBytes > 0)
+				file.ignore(remainingBytes);
+		}
 		else
-			file.ignore(thumbSize);
-	}
-	else if (thumbData)
-	{
-		// If thumbData is not nullptr it means the user has allocated space and is expecting the data to
-		// be filled. Warn them about the absence of a thumbnail in the file.
-		std::cout << "Warning: The thumbnail data will be ignored because there is not thumbnail present"
-			" in the file.\n";
+		{
+			file.ignore(thumbSizeInBytes);
+		}
+
+		if (!header.hasThumb && thumbData)
+		{
+			// If thumbData is not nullptr it means the user has allocated space and is expecting the data to
+			// be filled. Warn them about the absence of a thumbnail in the file.
+			std::cout << "Warning: The thumbnail data will be ignored because there is not thumbnail present"
+				" in the file.\n";
+		}
 	}
 
+	// --- Read image data ---
 	if (data)
 	{
 		const uint64_t depthSize = sizeOfDepth(header.depth);
