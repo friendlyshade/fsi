@@ -7,6 +7,7 @@
 
 #include "../../modules/core/Depth.hpp"
 #include "../../modules/core/ProgressThread.h"
+#include "../../modules/core/Exception.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
 #include "../../modules/core/Timer.h"
@@ -119,23 +120,24 @@ int main()
 {
 	using std::cout;
 
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input/input.fsi";
-	std::filesystem::path outV1Path = "../../extras/samples/stone-wall-7/output/output-v1.fsi";
-	std::filesystem::path outV2Path = "../../extras/samples/stone-wall-7/output/output-v2.fsi";
-
-	fsi::Result result;
+	std::filesystem::path inPath = "../../extras/samples/read_write/input/input.fsi";
+	std::filesystem::path outV1Path = "../../extras/samples/read_write/output/output-v1.fsi";
+	std::filesystem::path outV2Path = "../../extras/samples/read_write/output/output-v2.fsi";
 
 	// Read
 	// ----
 
 	cout << "Reading input...\n";
 
-	fsi::ReaderImpl reader;
+	fsi::Reader reader;
 
-	result = reader.open(inPath);
-	if (result != fsi::Result::Code::Success)
+	try
 	{
-		cout << result.message() << "\n";
+		reader.open(inPath);
+	}
+	catch (fsi::Exception& e)
+	{
+		cout << e << "\n";
 		return 1;
 	}
 
@@ -143,10 +145,13 @@ int main()
 
 	Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
 
-	result = reader.read(image.data, progressCallback);
-	if (result != fsi::Result::Code::Success)
+	try
 	{
-		cout << result.message() << "\n";
+		reader.read(image.data, nullptr, progressCallback);
+	}
+	catch (fsi::Exception& e)
+	{
+		cout << e << "\n";
 		return 1;
 	}
 
@@ -193,24 +198,31 @@ int main()
 		headerWriter.channels = image.channels;
 		headerWriter.depth = image.depth;
 
-		std::unique_ptr<fsi::WriterImpl> writer = fsi::WriterImpl::createWriter(fsi::FormatVersion::V1);
+		fsi::Writer writer(fsi::FormatVersion::V1);
 
-		result = writer->open(outV1Path, headerWriter);
-		if (result != fsi::Result::Code::Success)
+		try
 		{
-			cout << result.message() << "\n";
+			writer.open(outV1Path, headerWriter);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
 		fsi::Timer timer; timer.start();
-		result = writer->write(image.data, progressCallback);
-		if (result != fsi::Result::Code::Success)
+
+		try
 		{
-			cout << result.message() << "\n";
+			writer.write(image.data, progressCallback);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
-		writer->close();
+		writer.close();
 
 		cout << "Output (v1) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
@@ -234,24 +246,31 @@ int main()
 		headerWriter.depth = image.depth;
 		headerWriter.hasThumb = false;
 
-		std::unique_ptr<fsi::WriterImpl> writer = fsi::WriterImpl::createWriter(fsi::FormatVersion::V2);
+		fsi::Writer writer(fsi::FormatVersion::V2);
 
-		result = writer->open(outV2Path, headerWriter);
-		if (result != fsi::Result::Code::Success)
+		try
 		{
-			cout << result.message() << "\n";
+			writer.open(outV2Path, headerWriter);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
 		fsi::Timer timer; timer.start();
-		result = writer->write(image.data, progressCallback);
-		if (result != fsi::Result::Code::Success)
+
+		try
 		{
-			cout << result.message() << "\n";
+			writer.write(image.data, progressCallback);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
 			return 1;
 		}
 
-		writer->close();
+		writer.close();
 
 		cout << "Output (v2) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
