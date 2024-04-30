@@ -138,7 +138,7 @@ All data should be read/written in little-endian byte order.
 #### Data Section
 
 ##### Thumbnail Data
-- Thumbnail data section is always 262,144 bytes (for max thumbnail size of 256x256)
+- Thumbnail data section is always 262,144 bytes (for max thumbnail size of 256x256).
 - Thumbnail data is RGBA (4 channels) at 8-bit (unsigned)
 - Thumbnail dimensions are specified in the [Thumbnail Header](#thumbnail-header).
 - Thumbnail data is stored in interleaved/packed order = RGBA RGBA RGBA, etc.
