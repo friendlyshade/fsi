@@ -138,7 +138,6 @@ All data should be read/written in little-endian byte order.
 #### Data Section
 
 ##### Thumbnail Data
-- Thumbnail data section is only present when ["Has thumbnail"](#image-header) is true.
 - Thumbnail data is RGBA (4 channels) at 8-bit (unsigned)
 - Thumbnail dimensions are specified in the [Thumbnail Header](#thumbnail-header).
 - Thumbnail data is stored in interleaved/packed order = RGBA RGBA RGBA, etc.
