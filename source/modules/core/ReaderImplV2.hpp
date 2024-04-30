@@ -36,25 +36,21 @@ void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 
 	if (!(channels >= 1 && channels <= 1048575))
 	{
-		close();
 		throw ExceptionInvalidImageWidth("Must be an integer between 1 and 1,048,575");
 	}
 
 	if (!(width >= 1 && width <= 1048575))
 	{
-		close();
 		throw ExceptionInvalidImageWidth("Must be an integer between 1 and 1,048,575");
 	}
 
 	if (!(height >= 1 && height <= 1048575))
 	{
-		close();
 		throw ExceptionInvalidImageHeight("Must be an integer between 1 and 1,048,575");
 	}
 
 	if (!(depth >= 1 && depth <= 10))
 	{
-		close();
 		throw ExceptionInvalidImageDepth("Must be an integer between 1 and 10");
 	}
 
@@ -76,6 +72,12 @@ void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 
 		std::cout << "header.thumbWidth: " << header.thumbWidth << "\n";
 		std::cout << "header.thumbHeight: " << header.thumbHeight << "\n";
+
+		if (header.thumbWidth == 0 || header.thumbWidth > 256)
+			throw ExceptionInvalidThumbnailWidth("Must be an integer between 1 and 256");
+
+		if (header.thumbHeight == 0 || header.thumbHeight > 256)
+			throw ExceptionInvalidThumbnailHeight("Must be an integer between 1 and 256");
 	}
 	else
 	{

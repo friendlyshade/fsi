@@ -15,6 +15,8 @@ namespace fsi
 	class ExceptionInvalidFormatVersion;
 	class ExceptionInvalidFileExtension;
 	class ExceptionInvalidSignature;
+	class ExceptionInvalidThumbnailWidth;
+	class ExceptionInvalidThumbnailHeight;
 	class ExceptionInvalidImageWidth;
 	class ExceptionInvalidImageHeight;
 	class ExceptionInvalidImageChannels;
@@ -73,6 +75,32 @@ public:
 	const char* what() const noexcept override
 	{
 		return "Wrong signature or file is malformed/corrupted";
+	}
+};
+
+class fsi::ExceptionInvalidThumbnailWidth : public Exception
+{
+public:
+	ExceptionInvalidThumbnailWidth() : Exception() {}
+
+	ExceptionInvalidThumbnailWidth(const std::string& whatDetails) : Exception(whatDetails) {}
+
+	const char* what() const noexcept override
+	{
+		return "Wrong thumbnail width";
+	}
+};
+
+class fsi::ExceptionInvalidThumbnailHeight : public Exception
+{
+public:
+	ExceptionInvalidThumbnailHeight() : Exception() {}
+
+	ExceptionInvalidThumbnailHeight(const std::string& whatDetails) : Exception(whatDetails) {}
+
+	const char* what() const noexcept override
+	{
+		return "Wrong thumbnail height";
 	}
 };
 
