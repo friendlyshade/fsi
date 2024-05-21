@@ -24,7 +24,7 @@ const Depth thumbDepth = Depth::Uint8;
 // Thumbnail depth (Uint8)
 const uint64_t thumbSizeOfDepth = sizeOfDepth(thumbDepth);
 // Thumbnail width/height (256 px)
-const uint64_t thumbMaxDimension = 256;
+const uint64_t thumbMaxDimension = 1024;
 // Thumbnail channels (RGBA)
 const uint64_t thumbChannels = 4;
 // Thumbnail step (width*channels = 256*4)

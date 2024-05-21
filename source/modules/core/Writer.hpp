@@ -22,8 +22,8 @@
 #define WRITE_THUMB_AS_FILE 0
 
 #if WRITE_THUMB_AS_FILE
-	size_t thumbWidth = 256;
-	size_t thumbHeight = 256;
+	size_t thumbWidth = thumbMaxDimension;
+	size_t thumbHeight = thumbMaxDimension;
 	size_t thumbChannels = 4;
 	fsi::Depth thumbDepth = fsi::Depth::Uint8;
 

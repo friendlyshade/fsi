@@ -73,11 +73,13 @@ void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 		std::cout << "header.thumbWidth: " << header.thumbWidth << "\n";
 		std::cout << "header.thumbHeight: " << header.thumbHeight << "\n";
 
-		if (header.thumbWidth == 0 || header.thumbWidth > 256)
-			throw ExceptionInvalidThumbnailWidth("Must be an integer between 1 and 256");
+		if (header.thumbWidth == 0 || header.thumbWidth > thumbMaxDimension)
+			throw ExceptionInvalidThumbnailWidth("Must be an integer between 1 and "
+				+ std::to_string(thumbMaxDimension));
 
-		if (header.thumbHeight == 0 || header.thumbHeight > 256)
-			throw ExceptionInvalidThumbnailHeight("Must be an integer between 1 and 256");
+		if (header.thumbHeight == 0 || header.thumbHeight > thumbMaxDimension)
+			throw ExceptionInvalidThumbnailHeight("Must be an integer between 1 and "
+				+ std::to_string(thumbMaxDimension));
 	}
 	else
 	{

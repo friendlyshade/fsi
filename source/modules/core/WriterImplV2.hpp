@@ -139,20 +139,18 @@ void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const u
 void fsi::WriterImplV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight,
 	uint16_t& thumbWidth, uint16_t& thumbHeight)
 {
-	const uint16_t thumbnailSize = 256;
-
-	if (imageWidth > thumbnailSize || imageHeight > thumbnailSize)
+	if (imageWidth > thumbMaxDimension || imageHeight > thumbMaxDimension)
 	{
 		if (imageWidth > imageHeight)
 		{
-			thumbWidth = thumbnailSize;
-			thumbHeight = static_cast<uint16_t>((static_cast<float>(thumbnailSize)
+			thumbWidth = thumbMaxDimension;
+			thumbHeight = static_cast<uint16_t>((static_cast<float>(thumbMaxDimension)
 				/ static_cast<float>(imageWidth)) * static_cast<float>(imageHeight));
 		}
 		else
 		{
-			thumbHeight = thumbnailSize;
-			thumbWidth = static_cast<uint16_t>((static_cast<float>(thumbnailSize)
+			thumbHeight = thumbMaxDimension;
+			thumbWidth = static_cast<uint16_t>((static_cast<float>(thumbMaxDimension)
 				/ static_cast<float>(imageHeight)) * static_cast<float>(imageWidth));
 		}
 	}
@@ -162,6 +160,6 @@ void fsi::WriterImplV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageH
 	// std::cout << "Thumb width: " << thumbWidth << "\n";
 	// std::cout << "Thumb height: " << thumbHeight << "\n";
 
-	assert(thumbWidth <= thumbnailSize && "Thumbnail max width is 256. Should not reach here.");
-	assert(thumbHeight <= thumbnailSize && "Thumbnail max height is 256. Should not reach here.");
+	assert(thumbWidth <= thumbMaxDimension && "Thumbnail max width is 256. Should not reach here.");
+	assert(thumbHeight <= thumbMaxDimension && "Thumbnail max height is 256. Should not reach here.");
 }
