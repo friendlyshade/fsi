@@ -8,44 +8,68 @@
 #pragma once
 
 #include "fsi_core_exports.h"
-#include "Depth.h"
+#include "Depth.hpp"
 #include "FormatVersion.h"
 #include "Header.h"
 #include "ProgressThread.h"
-#include "Result.h"
 #include <filesystem>
 #include <fstream>
+#include <memory>
 
-namespace fsi { class Reader; }
+namespace fsi { class Reader; class ReaderImpl; }
 
 class FSI_CORE_API fsi::Reader
 {
 public:
 
 	Reader();
-	
+
 	~Reader();
 
-	Result open(const std::filesystem::path& path);
+public:
 
-	Result read(uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB = nullptr,
+	/** @brief Reads the file header and returns the version of the FSI specification
+	*/
+	static FormatVersion formatVersionFromFile(const std::filesystem::path& path);
+
+	/** @brief Returns the header containing the image properties like dimensions, number of channels and
+	* bit-depth.
+	*/
+	Header header();
+
+	/** @brief Returns the version of the FSI specification after opening the file
+	*/
+	FormatVersion formatVersion();
+
+public:
+	/** @brief Opens an FSI file and reads the header information.
+	*
+	* @param path The path to the image file.
+	*/
+	void open(const std::filesystem::path& path);
+
+	/** @brief Reads image data from a FSI file.
+	*
+	* The function reads the image bytes and optionally a thumbnail from the file. If a thumbnail is
+	* present Header::hasThumb will be true.
+	*
+	* @param data The image data.
+	* @param reportProgressCB The function is called when the progress of the operation is updated. It can
+	* additionally be used for pausing, resuming and canceling the operation.
+	* @param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
+	* of an instance of opaquePointer is required.
+	*/
+	bool read(uint8_t* data, uint8_t* thumbData = nullptr,
+		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
 	void close();
 
-public:
-
-	Header header();
-
 private:
 
-	Header m_header;
+	std::unique_ptr<ReaderImpl> m_impl;
 
-	FormatVersion m_formatVersion;
-
-	std::ifstream m_file;
-
-	std::filesystem::path m_path;
+	FSI_DISABLE_COPY_MOVE(Reader);
 };
 
 #if FSI_CORE_HEADERONLY

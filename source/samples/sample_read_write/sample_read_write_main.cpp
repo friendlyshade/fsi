@@ -5,10 +5,12 @@
 // FSI is licensed under The MIT License. If a copy of The MIT License was not distributed with this
 // file, you can obtain one at https://opensource.org/license/mit.
 
-#include "../../modules/core/Depth.h"
+#include "../../modules/core/Depth.hpp"
 #include "../../modules/core/ProgressThread.h"
+#include "../../modules/core/Exception.h"
 #include "../../modules/core/Reader.h"
 #include "../../modules/core/Writer.h"
+#include "../../modules/core/Timer.h"
 #include "../../modules/global.h"
 #include <iostream>
 #include <string>
@@ -67,6 +69,22 @@ void invertColor(uint64_t width, uint64_t height, uint64_t channels, fsi::Depth 
 	}
 }
 
+void RGBtoRG(uint64_t width, uint64_t height, fsi::Depth depth, uint8_t* srcData, uint8_t* dstData)
+{
+	assert(depth == fsi::Depth::Uint16 && "Data must be Uint16");
+
+	uint16_t* dataPtr = reinterpret_cast<uint16_t*>(srcData);
+
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
+		{
+			dataPtr[(y*width + x)*3 + 0] = dataPtr[(y*width + x)*2 + 0];
+			dataPtr[(y*width + x)*3 + 1] = dataPtr[(y*width + x)*2 + 1];
+		}
+	}
+}
+
 void updateProgressBar(
 	int tick,
 	int total,
@@ -102,10 +120,9 @@ int main()
 {
 	using std::cout;
 
-	std::filesystem::path inPath = "../../extras/samples/stone-wall-7/input.fsi";
-	std::filesystem::path outPath = "../../extras/samples/stone-wall-7/output.fsi";
-
-	fsi::Result result;
+	std::filesystem::path inPath = "../../extras/samples/read_write/input/input.fsi";
+	std::filesystem::path outV1Path = "../../extras/samples/read_write/output/output-v1.fsi";
+	std::filesystem::path outV2Path = "../../extras/samples/read_write/output/output-v2.fsi";
 
 	// Read
 	// ----
@@ -114,10 +131,13 @@ int main()
 
 	fsi::Reader reader;
 
-	result = reader.open(inPath);
-	if (result != fsi::Result::Code::Success)
+	try
 	{
-		cout << result.message() << "\n";
+		reader.open(inPath);
+	}
+	catch (fsi::Exception& e)
+	{
+		cout << e << "\n";
 		return 1;
 	}
 
@@ -125,10 +145,13 @@ int main()
 
 	Image image(headerReader.width, headerReader.height, headerReader.channels, headerReader.depth);
 
-	result = reader.read(image.data, progressCallback);
-	if (result != fsi::Result::Code::Success)
+	try
 	{
-		cout << result.message() << "\n";
+		reader.read(image.data, nullptr, progressCallback);
+	}
+	catch (fsi::Exception& e)
+	{
+		cout << e << "\n";
 		return 1;
 	}
 
@@ -150,35 +173,107 @@ int main()
 	invertColor(image.width, image.height, image.channels, image.depth, image.data);
 	cout << "Image colors inverted\n";
 
+	// Image rgImage(image.width, image.height, 2, image.depth);
+	// RGBtoRG(image.width, image.height, image.depth, image.data, rgImage.data);
+
 	// Write
 	// -----
 
 	cout << "Writing output...\n";
 
-	fsi::Writer writer;
-	fsi::Header headerWriter;
-	headerWriter.width = image.width;
-	headerWriter.height = image.height;
-	headerWriter.channels = image.channels;
-	headerWriter.depth = image.depth;
-
-	result = writer.open(outPath, headerWriter, fsi::FormatVersion::V1);
-	if (result != fsi::Result::Code::Success)
+	// v1
 	{
-		cout << result.message() << "\n";
-		return 1;
+		// Create destination path if it doesn't exist
+		std::error_code createDirsError;
+		std::filesystem::create_directories(outV1Path.parent_path(), createDirsError);
+		if (createDirsError)
+		{
+			cout << "Could not create out v1 path recursively\n";
+			return 1;
+		}
+
+		fsi::Header headerWriter;
+		headerWriter.width = image.width;
+		headerWriter.height = image.height;
+		headerWriter.channels = image.channels;
+		headerWriter.depth = image.depth;
+
+		fsi::Writer writer(fsi::FormatVersion::V1);
+
+		try
+		{
+			writer.open(outV1Path, headerWriter);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
+			return 1;
+		}
+
+		fsi::Timer timer; timer.start();
+
+		try
+		{
+			writer.write(image.data, progressCallback);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
+			return 1;
+		}
+
+		writer.close();
+
+		cout << "Output (v1) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
 
-	result = writer.write(image.data, progressCallback);
-	if (result != fsi::Result::Code::Success)
+	// v2
 	{
-		cout << result.message() << "\n";
-		return 1;
+		// Create destination path if it doesn't exist
+		std::error_code createDirsError;
+		std::filesystem::create_directories(outV2Path.parent_path(), createDirsError);
+		if (createDirsError)
+		{
+			cout << "Could not create out v2 path recursively\n";
+			return 1;
+		}
+
+		fsi::Header headerWriter;
+		headerWriter.width = image.width;
+		headerWriter.height = image.height;
+		headerWriter.channels = image.channels;
+		headerWriter.depth = image.depth;
+		headerWriter.depth = image.depth;
+		headerWriter.hasThumb = false;
+
+		fsi::Writer writer(fsi::FormatVersion::V2);
+
+		try
+		{
+			writer.open(outV2Path, headerWriter);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
+			return 1;
+		}
+
+		fsi::Timer timer; timer.start();
+
+		try
+		{
+			writer.write(image.data, progressCallback);
+		}
+		catch (fsi::Exception& e)
+		{
+			cout << e << "\n";
+			return 1;
+		}
+
+		writer.close();
+
+		cout << "Output (v2) written successfully in " << timer.elapsedMs() << " ms\n";
 	}
-
-	writer.close();
-
-	cout << "Output written successfully\n";
 
 	return 0;
 }

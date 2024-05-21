@@ -7,9 +7,10 @@
 
 # Links
 set(LINKS core)
+set(TARGET_NAME sample_read_write)
 
 # Add executable
-helper_add_executable(sample_read_write
+helper_add_executable(${TARGET_NAME}
 	OUTPUT_NAME Sample_ReadWrite
 	FOLDER "samples"
 	SOURCES "sample_read_write_main.cpp"
@@ -22,8 +23,7 @@ helper_add_executable(sample_read_write
 
 # Copy sample files to the build directory
 set(SAMPLE_FILES
-	# ----- stone-wall-7 -----
-    "stone-wall-7/input.fsi"
+    "read_write/input/input.fsi"
 )
 foreach(FILE ${SAMPLE_FILES})
     get_filename_component(source_path "${CMAKE_SOURCE_DIR}/../extras/samples/${FILE}" ABSOLUTE)
@@ -31,7 +31,7 @@ foreach(FILE ${SAMPLE_FILES})
     get_filename_component(destination_dir "${destination_path}" DIRECTORY)
 
     add_custom_command(
-		TARGET sample_read_write
+		TARGET ${TARGET_NAME}
 		POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${destination_dir}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${source_path} ${destination_path}

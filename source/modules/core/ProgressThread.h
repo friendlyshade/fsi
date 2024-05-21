@@ -31,10 +31,20 @@ public:
 
 public:
 
-	// Pointer to a function called periodically by Reader and Writer. This can be used to implement
-	// progress feedback. It takes an opaque data pointer (passed to Reader/Writer) and a float giving
-	// the portion of work done so far. It returns a bool, which if 'true' will STOP the read or write.
+	/** @brief Write image data to FSI file.
+
+	Pointer to a function called periodically by Reader and Writer. This can be used to implement
+	progress feedback. It takes an opaque data pointer (passed to Reader/Writer) and a float giving
+	the portion of work done so far. It returns an instance of StateRequest, for each required action
+	(pausing, resuming, canceling or no action at all).
+
+	@param opaquePointer Opaque pointer in case ReportProgressCB requires access to a member of an
+	instance of opaquePointer.
+	@param progress Current progress in the 0..1 range.
+	 */
 	typedef std::function<StateRequest(void* opaquePointer, float progress)> ReportProgressCB;
+
+private:
 
 	// Function that is run when progress is required
 	typedef std::function<float()> CalcProgressCB;

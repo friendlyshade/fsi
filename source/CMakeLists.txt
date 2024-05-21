@@ -80,6 +80,9 @@ else()
 	set(FSI_LINK_SCOPE PUBLIC)
 endif()
 
+# Option menu "build using OpenMP"
+option(FSI_USE_OPENMP "Build using OpenMP" ON)
+
 # -------------------------------------------------------------------------------------------------
 # Prefixes
 # -------------------------------------------------------------------------------------------------
@@ -100,7 +103,17 @@ set(CMAKE_INSTALL_BINDIR ${CMAKE_INSTALL_PREFIX}/bin)
 # Require external libraries
 # --------------------------------------------------------------
 
-# Nope! :)
+if(FSI_USE_OPENMP)
+    find_package(OpenMP)
+    if(OPENMP_FOUND)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    else()
+        message(WARNING "OpenMP NOT found")
+        set(FSI_USE_OPENMP OFF)
+    endif()
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # Add modules and software
@@ -111,6 +124,12 @@ add_subdirectory(modules/core)
 
 # Add Sample Read/Write
 add_subdirectory(samples/sample_read_write)
+
+# Add Sample Convert V1 to V2
+add_subdirectory(samples/sample_convert_v1_to_v2)
+
+# Add Sample Convert V2 to V1
+add_subdirectory(samples/sample_convert_v2_to_v1)
 
 # Get all targets in a list
 get_targets(CMAKE_TARGETS True)

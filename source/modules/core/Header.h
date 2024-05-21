@@ -6,14 +6,21 @@
 // file, you can obtain one at https://opensource.org/license/mit.
 
 #pragma once
-#include "Depth.h"
+#include "Depth.hpp"
 
 namespace fsi { struct Header; }
 
 struct fsi::Header
 {
-	uint64_t width;
-	uint64_t height;
-	uint64_t channels;
-	Depth depth;
+	uint32_t width = 0;
+	uint32_t height = 0;
+	uint32_t channels = 0;
+	Depth depth = Depth::Invalid;
+
+	/** @brief Generates a thumbnail when set to true while writing. It will be true when a thumbnails is
+	present after reading an image
+	*/
+	bool hasThumb = false;
+	uint16_t thumbWidth = 0;
+	uint16_t thumbHeight = 0;
 };
