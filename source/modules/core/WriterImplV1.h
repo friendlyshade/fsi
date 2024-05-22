@@ -34,5 +34,5 @@ private:
 };
 
 #if FSI_CORE_HEADERONLY
-#include "WriterV1.hpp"
+#include "WriterImplV1.hpp"
 #endif

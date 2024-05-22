@@ -9,6 +9,7 @@
 
 #include <string>
 #include <assert.h>
+#include <ostream>
 
 namespace fsi
 {
