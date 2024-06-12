@@ -70,10 +70,10 @@ void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcWidth, uin
 	const int64_t kernel_height = round(height_factor);
 	const double kernel_size = static_cast<double>(kernel_width*kernel_height);
 
-	std::cout << "dst_C: " << Dst_C << "\n";
-	std::cout << "dst_S: " << dst_S << "\n";
-	std::cout << "dst_W: " << dst_W << "\n";
-	std::cout << "dst_H: " << dst_H << "\n";
+	std::cout << "Thumbnail dst_C: " << Dst_C << "\n";
+	std::cout << "Thumbnail dst_S: " << dst_S << "\n";
+	std::cout << "Thumbnail dst_W: " << dst_W << "\n";
+	std::cout << "Thumbnail dst_H: " << dst_H << "\n";
 
 #pragma omp parallel for
 	for (int64_t dst_y = 0; dst_y < dst_H; dst_y++)
