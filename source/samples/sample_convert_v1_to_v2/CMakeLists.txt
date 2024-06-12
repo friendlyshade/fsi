@@ -31,6 +31,7 @@ set(SAMPLE_FILES
     "convert_v1_to_v2/input/2000x924px_2C_16bit.fsi"
     "convert_v1_to_v2/input/2000x924px_3C_16bit.fsi"
     "convert_v1_to_v2/input/2000x924px_4C_16bit.fsi"
+    "convert_v1_to_v2/input/color-grid.fsi"
 )
 foreach(FILE ${SAMPLE_FILES})
     get_filename_component(source_path "${CMAKE_SOURCE_DIR}/../extras/samples/${FILE}" ABSOLUTE)
