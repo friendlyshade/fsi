@@ -17,7 +17,7 @@ function(helper_add_library LIBRARY_NAME)
     set(oneValueArgs BUILD_TYPE FOLDER OUTPUT_NAME LINK_SCOPE)
 
 	# Define multiple value arguments
-    set(multiValueArgs PUBLIC_HEADERS SOURCES LINKS INCLUDE_DIRECTORIES)
+    set(multiValueArgs PUBLIC_HEADERS PRIVATE_HEADERS SOURCES LINKS INCLUDE_DIRECTORIES)
 
 	# Parse arguments
     cmake_parse_arguments(LIBRARY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -81,18 +81,18 @@ function(helper_add_library LIBRARY_NAME)
 		@ONLY
 	)
 	
-	if (NOT LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
-		# Move files with the ".hpp" extension to the sources
-		foreach(FILE ${LIBRARY_PUBLIC_HEADERS})
-			get_filename_component(FILE_EXTENSION "${FILE}" LAST_EXT)
-			if (FILE_EXTENSION STREQUAL ".hpp")
-				list(APPEND LIBRARY_SOURCES "${FILE}")
-			endif()
-		endforeach()
-		
-		# Remove files with the ".hpp" extension from public headers
-		list(FILTER LIBRARY_PUBLIC_HEADERS EXCLUDE REGEX "\\.hpp$")
-	endif()
+	#if (NOT LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+	#	# Move files with the ".hpp" extension to the sources
+	#	foreach(FILE ${LIBRARY_PUBLIC_HEADERS})
+	#		get_filename_component(FILE_EXTENSION "${FILE}" LAST_EXT)
+	#		if (FILE_EXTENSION STREQUAL ".hpp")
+	#			list(APPEND LIBRARY_SOURCES "${FILE}")
+	#		endif()
+	#	endforeach()
+	#	
+	#	# Remove files with the ".hpp" extension from public headers
+	#	list(FILTER LIBRARY_PUBLIC_HEADERS EXCLUDE REGEX "\\.hpp$")
+	#endif()
 	
 	# Print the filtered file list
 	#message("----- Public headers -----")
@@ -106,12 +106,13 @@ function(helper_add_library LIBRARY_NAME)
 
 	# Create filters
 	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Header Files" FILES ${LIBRARY_PUBLIC_HEADERS})
+	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Header Files" FILES ${LIBRARY_PRIVATE_HEADERS})
 	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Header Files" REGULAR_EXPRESSION "\\.h$")
 	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" REGULAR_EXPRESSION "\\.cpp$")
 
 	# Add the source files for the library
 	# add_library(${LIBRARY_NAME} ${LIBRARY_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS} "${CMAKE_SOURCE_DIR}/modules/version.hpp" "${CMAKE_SOURCE_DIR}/export.h")
-	add_library(${LIBRARY_NAME} ${LIBRARY_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS}
+	add_library(${LIBRARY_NAME} ${LIBRARY_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS} ${LIBRARY_PRIVATE_HEADERS}
 	"${CMAKE_SOURCE_DIR}/modules/version.hpp" "${CMAKE_CURRENT_BINARY_DIR}/fsi_${LIBRARY_NAME}_exports.h" "${CMAKE_SOURCE_DIR}/modules/global.h")
 	
 	# Add compile definitions (macros)
@@ -157,6 +158,14 @@ function(helper_add_library LIBRARY_NAME)
 		get_filename_component(PATH ${PUBLIC_HEADER} DIRECTORY)
 		install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/${PUBLIC_HEADER}" DESTINATION "${FSI_PUBLIC_HEADER_DESTINATION_PREFIX}${LIBRARY_NAME}/${PATH}")
 	endforeach()
+	
+	# Install private header files keeping their folder structure
+	if (LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+		foreach(PRIVATE_HEADER ${LIBRARY_PRIVATE_HEADERS})
+			get_filename_component(PATH ${PRIVATE_HEADER} DIRECTORY)
+			install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/${PRIVATE_HEADER}" DESTINATION "${FSI_PUBLIC_HEADER_DESTINATION_PREFIX}${LIBRARY_NAME}/${PATH}")
+		endforeach()
+	endif()
 	
 	# Install version.hpp header file to the root of the include folder
 	install(FILES "${CMAKE_SOURCE_DIR}/modules/version.hpp"
