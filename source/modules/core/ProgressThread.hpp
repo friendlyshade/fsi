@@ -8,6 +8,7 @@
 #include "ProgressThread.h"
 #include <iostream>
 
+FSI_INLINE_HPP
 fsi::ProgressThread::ProgressThread(
 	void* reportProgressOpaquePtr,
 	ReportProgressCB reportProgressCB,
@@ -32,10 +33,12 @@ fsi::ProgressThread::ProgressThread(
 		updateFrequency);
 }
 
+FSI_INLINE_HPP
 fsi::ProgressThread::~ProgressThread()
 {
 }
 
+FSI_INLINE_HPP
 void fsi::ProgressThread::join(bool completed)
 {
 	m_finish = true;
@@ -45,6 +48,7 @@ void fsi::ProgressThread::join(bool completed)
 		m_reportProgressCB(m_reportProgressOpaquePtr, 1.0f);
 }
 
+FSI_INLINE_HPP
 void fsi::ProgressThread::updateProgress(
 	void* progressOpaquePtr,
 	ReportProgressCB reportProgressCB,

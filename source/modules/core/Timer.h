@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include "../fsi_core_exports.h"
+#include "fsi_core_exports.h"
+#include "../global.h"
 #include <chrono>
 
 namespace fsi { class Timer; }
@@ -34,6 +35,6 @@ private:
 
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "Timer.hpp"
 #endif

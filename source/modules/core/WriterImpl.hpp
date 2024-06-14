@@ -27,20 +27,24 @@
 	fsi::Header originalHeader;
 #endif
 
+FSI_INLINE_HPP
 fsi::WriterImpl::WriterImpl()
 {
 }
 
+FSI_INLINE_HPP
 fsi::WriterImpl::~WriterImpl()
 {
 	close();
 }
 
+FSI_INLINE_HPP
 fsi::Header fsi::WriterImpl::header()
 {
 	return m_header;
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImpl::open(const std::filesystem::path& path, const Header& header)
 {
 	// Check file extension
@@ -90,6 +94,7 @@ void fsi::WriterImpl::open(const std::filesystem::path& path, const Header& head
 	}
 }
 
+FSI_INLINE_HPP
 bool fsi::WriterImpl::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
 	void* reportProgressOpaquePtr)
 {
@@ -136,6 +141,7 @@ bool fsi::WriterImpl::write(const uint8_t* data, ProgressThread::ReportProgressC
 	return canceled;
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImpl::close()
 {
 	if (m_file.is_open())

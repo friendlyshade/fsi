@@ -135,8 +135,8 @@ int main()
 			"../../extras/samples/convert_v1_to_v2/output/2000x924px_4C_16bit.fsi",
 		},
 		{
-			"../../extras/samples/convert_v1_to_v2/input/food.fsi",
-			"../../extras/samples/convert_v1_to_v2/output/food.fsi",
+			"../../extras/samples/convert_v1_to_v2/input/color-grid.fsi",
+			"../../extras/samples/convert_v1_to_v2/output/color-grid.fsi",
 		},
 	};
 

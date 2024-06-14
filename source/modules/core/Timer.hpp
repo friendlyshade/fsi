@@ -9,23 +9,23 @@
 
 #include "Timer.h"
 
-
+FSI_INLINE_HPP
 fsi::Timer::Timer()
 {
 }
 
-
+FSI_INLINE_HPP
 fsi::Timer::~Timer()
 {
 }
 
-
+FSI_INLINE_HPP
 void fsi::Timer::start()
 {
 	m_time = std::chrono::steady_clock::now();
 }
 
-
+FSI_INLINE_HPP
 uint64_t fsi::Timer::elapsedMs()
 {
 	std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
@@ -33,7 +33,7 @@ uint64_t fsi::Timer::elapsedMs()
 	return elapsed;
 }
 
-
+FSI_INLINE_HPP
 float fsi::Timer::elapsedS()
 {
 	std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();

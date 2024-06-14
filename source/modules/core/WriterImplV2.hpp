@@ -16,11 +16,13 @@
 #include <algorithm>
 #include <vector>
 
+FSI_INLINE_HPP
 fsi::FormatVersion fsi::WriterImplV2::formatVersion()
 {
 	return FormatVersion::V2;
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImplV2::open(std::ofstream& file, Header& header)
 {
 	// --- Write image header ---
@@ -75,6 +77,7 @@ void fsi::WriterImplV2::open(std::ofstream& file, Header& header)
 	}
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const uint8_t* data,
 	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
@@ -136,9 +139,13 @@ void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const u
 	}
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImplV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight,
 	uint16_t& thumbWidth, uint16_t& thumbHeight)
 {
+	assert(imageWidth > 0 && "Image width must be greater than 0. Should not reach here.");
+	assert(imageHeight > 0 && "Image height must be greater than 0. Should not reach here.");
+
 	if (imageWidth > thumbMaxDimension || imageHeight > thumbMaxDimension)
 	{
 		if (imageWidth > imageHeight)
@@ -154,9 +161,11 @@ void fsi::WriterImplV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageH
 				/ static_cast<float>(imageHeight)) * static_cast<float>(imageWidth));
 		}
 	}
-	thumbWidth = std::max(uint16_t(1), thumbWidth);
-	thumbHeight = std::max(uint16_t(1), thumbHeight);
-
+	else
+	{
+		thumbWidth = imageWidth;
+		thumbHeight = imageHeight;
+	}
 	// std::cout << "Thumb width: " << thumbWidth << "\n";
 	// std::cout << "Thumb height: " << thumbHeight << "\n";
 

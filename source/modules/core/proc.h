@@ -8,6 +8,7 @@
 #pragma once
 
 #include "Header.h"
+#include "../global.h"
 
 namespace fsi
 {
@@ -57,6 +58,6 @@ namespace fsi
 }
 
 #include "proc.tcc"
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "proc.hpp"
 #endif

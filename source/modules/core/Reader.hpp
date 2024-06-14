@@ -17,14 +17,17 @@
 #include <atomic>
 #include <string>
 
+FSI_INLINE_HPP
 fsi::Reader::Reader()
 {
 }
 
+FSI_INLINE_HPP
 fsi::Reader::~Reader()
 {
 }
 
+FSI_INLINE_HPP
 fsi::FormatVersion fsi::Reader::formatVersionFromFile(const std::filesystem::path& path)
 {
 	// Check file extension
@@ -60,18 +63,21 @@ fsi::FormatVersion fsi::Reader::formatVersionFromFile(const std::filesystem::pat
 	return formatVersion;
 }
 
+FSI_INLINE_HPP
 fsi::Header fsi::Reader::header()
 {
 	assert(m_impl && "The file must be opened before accessing the Header");
 	return m_impl->header();
 }
 
+FSI_INLINE_HPP
 fsi::FormatVersion fsi::Reader::formatVersion()
 {
 	assert(m_impl && "The file must be opened before accessing the Format Version");
 	return m_impl->formatVersion();
 }
 
+FSI_INLINE_HPP
 void fsi::Reader::open(const std::filesystem::path& path)
 {
 	FormatVersion formatVersion = formatVersionFromFile(path);
@@ -93,6 +99,7 @@ void fsi::Reader::open(const std::filesystem::path& path)
 	m_impl->open(path);
 }
 
+FSI_INLINE_HPP
 bool fsi::Reader::read(uint8_t* data, uint8_t* thumbData,
 	ProgressThread::ReportProgressCB reportProgressCB, void* reportProgressOpaquePtr)
 {
@@ -101,6 +108,7 @@ bool fsi::Reader::read(uint8_t* data, uint8_t* thumbData,
 	return m_impl->read(data, thumbData, reportProgressCB, reportProgressOpaquePtr);
 }
 
+FSI_INLINE_HPP
 void fsi::Reader::close()
 {
 	if (!m_impl)

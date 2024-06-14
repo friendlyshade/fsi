@@ -7,13 +7,11 @@
 
 #pragma once
 
-#include "fsi_core_exports.h"
 #include "../global.h"
 #include <thread>
 #include <functional>
 #include <memory>
 #include <atomic>
-
 
 namespace fsi { class ProgressThread; }
 
@@ -100,6 +98,6 @@ private:
 	ReportProgressCB m_reportProgressCB;
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "ProgressThread.hpp"
 #endif

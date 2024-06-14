@@ -15,15 +15,18 @@
 #include <atomic>
 #include <string>
 
+FSI_INLINE_HPP
 fsi::ReaderImpl::ReaderImpl()
 {
 }
 
+FSI_INLINE_HPP
 fsi::ReaderImpl::~ReaderImpl()
 {
 	close();
 }
 
+FSI_INLINE_HPP
 fsi::Header fsi::ReaderImpl::header()
 {
 	if (!m_file.is_open())
@@ -31,6 +34,7 @@ fsi::Header fsi::ReaderImpl::header()
 	return m_header;
 }
 
+FSI_INLINE_HPP
 void fsi::ReaderImpl::open(const std::filesystem::path& path)
 {
 	// Check file extension
@@ -93,6 +97,7 @@ void fsi::ReaderImpl::open(const std::filesystem::path& path)
 	}
 }
 
+FSI_INLINE_HPP
 bool fsi::ReaderImpl::read(uint8_t* data, uint8_t* thumbData,
 	ProgressThread::ReportProgressCB reportProgressCB, void* reportProgressOpaquePtr)
 {
@@ -127,6 +132,7 @@ bool fsi::ReaderImpl::read(uint8_t* data, uint8_t* thumbData,
 	return canceled;
 }
 
+FSI_INLINE_HPP
 void fsi::ReaderImpl::close()
 {
 	if (m_file.is_open())

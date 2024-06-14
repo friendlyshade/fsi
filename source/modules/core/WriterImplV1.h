@@ -8,6 +8,7 @@
 #pragma once
 
 #include "fsi_core_exports.h"
+#include "../global.h"
 #include "Depth.hpp"
 #include "WriterImpl.h"
 #include "FormatVersion.h"
@@ -33,6 +34,6 @@ private:
 		std::atomic<float>& progress) override;
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "WriterImplV1.hpp"
 #endif

@@ -8,6 +8,7 @@
 #pragma once
 
 #include "fsi_core_exports.h"
+#include "../global.h"
 #include "Depth.hpp"
 #include "FormatVersion.h"
 #include "Header.h"
@@ -72,6 +73,6 @@ private:
 	FSI_DISABLE_COPY_MOVE(Reader);
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "Reader.hpp"
 #endif
