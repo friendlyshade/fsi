@@ -16,11 +16,13 @@
 #include <algorithm>
 #include <vector>
 
+FSI_INLINE_HPP
 fsi::FormatVersion fsi::WriterImplV2::formatVersion()
 {
 	return FormatVersion::V2;
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImplV2::open(std::ofstream& file, Header& header)
 {
 	// --- Write image header ---
@@ -75,6 +77,7 @@ void fsi::WriterImplV2::open(std::ofstream& file, Header& header)
 	}
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const uint8_t* data,
 	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
@@ -136,6 +139,7 @@ void fsi::WriterImplV2::write(std::ofstream& file, const Header& header, const u
 	}
 }
 
+FSI_INLINE_HPP
 void fsi::WriterImplV2::calcThumbDimensions(uint32_t imageWidth, uint32_t imageHeight,
 	uint16_t& thumbWidth, uint16_t& thumbHeight)
 {

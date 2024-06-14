@@ -14,7 +14,7 @@ function(helper_add_library LIBRARY_NAME)
     set(options "")
 
 	# Define one value arguments
-    set(oneValueArgs BUILD_TYPE FOLDER OUTPUT_NAME LINK_SCOPE)
+    set(oneValueArgs FOLDER OUTPUT_NAME LINK_SCOPE)
 
 	# Define multiple value arguments
     set(multiValueArgs PUBLIC_HEADERS PRIVATE_HEADERS SOURCES LINKS INCLUDE_DIRECTORIES)
@@ -33,7 +33,7 @@ function(helper_add_library LIBRARY_NAME)
 	endif()
 
 	# Make sure there's a build type for the library
-	if(NOT LIBRARY_BUILD_TYPE)
+	if(NOT FSI_BUILD_TYPE)
 		message(FATAL_ERROR "You must provide a build type for the library")
 	endif()
 	
@@ -65,12 +65,12 @@ function(helper_add_library LIBRARY_NAME)
 	string(TOUPPER ${LIBRARY_NAME} LIBRARY_NAME_UPPERCASE)
 	
 	# Install customized exports.h in the binary folder of the module
-	if (LIBRARY_BUILD_TYPE STREQUAL "SHARED")
+	if (FSI_BUILD_TYPE STREQUAL "SHARED")
 		set(INSTALL_LIBRARY_IS_SHARED 1)
 	else()
 		set(INSTALL_LIBRARY_IS_SHARED 0)
 	endif()
-	if (LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+	if (FSI_BUILD_TYPE STREQUAL "INTERFACE")
 		set(INSTALL_LIBRARY_IS_INTERFACE 1)
 	else()
 		set(INSTALL_LIBRARY_IS_INTERFACE 0)
@@ -80,8 +80,13 @@ function(helper_add_library LIBRARY_NAME)
 		"${CMAKE_CURRENT_BINARY_DIR}/fsi_${LIBRARY_NAME}_exports.h"
 		@ONLY
 	)
+	configure_file(
+		"${CMAKE_SOURCE_DIR}/cmake/global.h.in"
+		"${CMAKE_BINARY_DIR}/modules/global.h"
+		@ONLY
+	)
 	
-	#if (NOT LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+	#if (NOT FSI_BUILD_TYPE STREQUAL "INTERFACE")
 	#	# Move files with the ".hpp" extension to the sources
 	#	foreach(FILE ${LIBRARY_PUBLIC_HEADERS})
 	#		get_filename_component(FILE_EXTENSION "${FILE}" LAST_EXT)
@@ -111,12 +116,12 @@ function(helper_add_library LIBRARY_NAME)
 	source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX "Source Files" REGULAR_EXPRESSION "\\.cpp$")
 
 	# Add the source files for the library
-	# add_library(${LIBRARY_NAME} ${LIBRARY_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS} "${CMAKE_SOURCE_DIR}/modules/version.hpp" "${CMAKE_SOURCE_DIR}/export.h")
-	add_library(${LIBRARY_NAME} ${LIBRARY_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS} ${LIBRARY_PRIVATE_HEADERS}
-	"${CMAKE_SOURCE_DIR}/modules/version.hpp" "${CMAKE_CURRENT_BINARY_DIR}/fsi_${LIBRARY_NAME}_exports.h" "${CMAKE_SOURCE_DIR}/modules/global.h")
+	# add_library(${LIBRARY_NAME} ${FSI_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS} "${CMAKE_SOURCE_DIR}/modules/version.hpp" "${CMAKE_SOURCE_DIR}/export.h")
+	add_library(${LIBRARY_NAME} ${FSI_BUILD_TYPE} ${LIBRARY_SOURCES} ${LIBRARY_PUBLIC_HEADERS} ${LIBRARY_PRIVATE_HEADERS}
+	"${CMAKE_SOURCE_DIR}/modules/version.hpp" "${CMAKE_CURRENT_BINARY_DIR}/fsi_${LIBRARY_NAME}_exports.h" "${CMAKE_BINARY_DIR}/modules/global.h")
 	
 	# Add compile definitions (macros)
-	if (NOT LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+	if (NOT FSI_BUILD_TYPE STREQUAL "INTERFACE")
 		target_compile_definitions(${LIBRARY_NAME} PRIVATE "FSI_${LIBRARY_NAME_UPPERCASE}_EXPORTS")
 	endif()
 	
@@ -160,7 +165,7 @@ function(helper_add_library LIBRARY_NAME)
 	endforeach()
 	
 	# Install private header files keeping their folder structure
-	if (LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+	if (FSI_BUILD_TYPE STREQUAL "INTERFACE")
 		foreach(PRIVATE_HEADER ${LIBRARY_PRIVATE_HEADERS})
 			get_filename_component(PATH ${PRIVATE_HEADER} DIRECTORY)
 			install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/${PRIVATE_HEADER}" DESTINATION "${FSI_PUBLIC_HEADER_DESTINATION_PREFIX}${LIBRARY_NAME}/${PATH}")
@@ -173,7 +178,7 @@ function(helper_add_library LIBRARY_NAME)
 	)
 	
 	# Install global.h header file to the root of the include folder
-	install(FILES "${CMAKE_SOURCE_DIR}/modules/global.h"
+	install(FILES "${CMAKE_BINARY_DIR}/modules/global.h"
 		DESTINATION "${FSI_PUBLIC_HEADER_DESTINATION_PREFIX}" # e.g. "include/friendlyshade/fsi"
 	)
 	
@@ -188,7 +193,7 @@ function(helper_add_library LIBRARY_NAME)
 
 	# Add the include directories
 	file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/dummy-folder")
-	if (LIBRARY_BUILD_TYPE STREQUAL "INTERFACE")
+	if (FSI_BUILD_TYPE STREQUAL "INTERFACE")
 		target_include_directories(${LIBRARY_NAME}
 			INTERFACE
 			$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>

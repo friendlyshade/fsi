@@ -89,6 +89,6 @@ private:
 	FSI_DISABLE_COPY_MOVE(Writer);
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "Writer.hpp"
 #endif

@@ -28,5 +28,3 @@
 #else // static or header-only
 	#define FSI_@LIBRARY_NAME_UPPERCASE@_API
 #endif
-
-#define FSI_@LIBRARY_NAME_UPPERCASE@_HEADERONLY @INSTALL_LIBRARY_IS_INTERFACE@

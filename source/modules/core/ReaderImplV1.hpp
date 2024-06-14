@@ -12,16 +12,19 @@
 #include "consts.h"
 #include <iostream>
 
+FSI_INLINE_HPP
 fsi::ReaderImplV1::ReaderImplV1()
 	: ReaderImpl()
 {
 }
 
+FSI_INLINE_HPP
 fsi::FormatVersion fsi::ReaderImplV1::formatVersion()
 {
 	return FormatVersion::V1;
 }
 
+FSI_INLINE_HPP
 void fsi::ReaderImplV1::open(std::ifstream& file, Header& header)
 {
 	uint32_t width;
@@ -60,6 +63,7 @@ void fsi::ReaderImplV1::open(std::ifstream& file, Header& header)
 	header.depth = static_cast<Depth>(depth);
 }
 
+FSI_INLINE_HPP
 void fsi::ReaderImplV1::read(std::ifstream& file, const Header& header, uint8_t* data,
 	uint8_t* thumbData, const std::atomic<bool>& paused, const std::atomic<bool>& canceled,
 	std::atomic<float>& progress)

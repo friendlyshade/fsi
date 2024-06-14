@@ -62,6 +62,6 @@ private:
 	FSI_DISABLE_COPY_MOVE(ReaderImpl);
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "ReaderImpl.hpp"
 #endif

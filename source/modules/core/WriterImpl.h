@@ -60,6 +60,6 @@ private:
 	FSI_DISABLE_COPY_MOVE(WriterImpl);
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "WriterImpl.hpp"
 #endif

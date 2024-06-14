@@ -30,6 +30,7 @@
 	fsi::Header originalHeader;
 #endif
 
+FSI_INLINE_HPP
 fsi::Writer::Writer(FormatVersion formatVersion)
 {
 	switch (formatVersion)
@@ -45,31 +46,37 @@ fsi::Writer::Writer(FormatVersion formatVersion)
 	throw ExceptionInvalidFormatVersion("Header must be castable to Header_V1 or Header_V2");
 }
 
+FSI_INLINE_HPP
 fsi::Writer::~Writer()
 {
 }
 
+FSI_INLINE_HPP
 fsi::Header fsi::Writer::header()
 {
 	return m_impl->header();
 }
 
+FSI_INLINE_HPP
 fsi::FormatVersion fsi::Writer::formatVersion()
 {
 	return m_impl->formatVersion();
 }
 
+FSI_INLINE_HPP
 void fsi::Writer::open(const std::filesystem::path& path, const Header& header)
 {
 	m_impl->open(path, header);
 }
 
+FSI_INLINE_HPP
 bool fsi::Writer::write(const uint8_t* data, ProgressThread::ReportProgressCB reportProgressCB,
 	void* reportProgressOpaquePtr)
 {
 	return m_impl->write(data, reportProgressCB, reportProgressOpaquePtr);
 }
 
+FSI_INLINE_HPP
 void fsi::Writer::close()
 {
 	m_impl->close();

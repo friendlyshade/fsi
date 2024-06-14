@@ -9,6 +9,7 @@
 
 #include "proc.h"
 
+FSI_INLINE_HPP
 void fsi::proc::generateThumbnail(const uint8_t* srcData, uint64_t srcWidth, uint64_t srcHeight,
 	uint64_t srcChannels, Depth srcDepth, uint64_t srcStep, uint8_t* dstData, int64_t dstStep,
 	uint64_t targetWidth, uint64_t targetHeight)

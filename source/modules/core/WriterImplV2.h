@@ -8,6 +8,7 @@
 #pragma once
 
 #include "fsi_core_exports.h"
+#include "../global.h"
 #include "Depth.hpp"
 #include "WriterImpl.h"
 #include "FormatVersion.h"
@@ -38,6 +39,6 @@ private:
 		uint16_t& thumbHeight);
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "WriterImplV2.hpp"
 #endif

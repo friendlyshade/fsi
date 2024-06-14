@@ -8,6 +8,7 @@
 #pragma once
 
 #include "fsi_core_exports.h"
+#include "../global.h"
 #include "ReaderImpl.h"
 #include "FormatVersion.h"
 #include "Header.h"
@@ -41,6 +42,6 @@ private:
 
 };
 
-#if FSI_CORE_HEADERONLY
+#if FSI_HEADERONLY
 #include "ReaderImplV2.hpp"
 #endif
