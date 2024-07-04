@@ -243,7 +243,6 @@ int main()
 		headerWriter.height = image.height;
 		headerWriter.channels = image.channels;
 		headerWriter.depth = image.depth;
-		headerWriter.depth = image.depth;
 		headerWriter.hasThumb = false;
 
 		fsi::Writer writer(fsi::FormatVersion::V2);
