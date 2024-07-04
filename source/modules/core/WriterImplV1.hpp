@@ -56,8 +56,11 @@ FSI_INLINE_HPP
 void fsi::WriterImplV1::write(std::ofstream& file, const Header& header, const uint8_t* data,
 	const std::atomic<bool>& paused, const std::atomic<bool>& canceled, std::atomic<float>& progress)
 {
-	const uint64_t depthSize = sizeOfDepth(header.depth);
-	const uint64_t imageSize = header.width * header.height * header.channels * depthSize;
+	const uint64_t imageSize =
+		static_cast<uint64_t>(header.width)
+	  * static_cast<uint64_t>(header.height)
+	  * static_cast<uint64_t>(header.channels)
+	  * sizeOfDepth(header.depth);
 
 	// If buffer is larger than the total data, adjust the buffer size
 	const uint64_t bufferSize = defaultBufferSize > imageSize ? imageSize : defaultBufferSize;

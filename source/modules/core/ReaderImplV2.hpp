@@ -127,8 +127,11 @@ void fsi::ReaderImplV2::read(std::ifstream& file, const Header& header, uint8_t*
 	// --- Read image data ---
 	if (data)
 	{
-		const uint64_t depthSize = sizeOfDepth(header.depth);
-		const uint64_t imageSize = header.width * header.height * header.channels * depthSize;
+		const uint64_t imageSize =
+			static_cast<uint64_t>(header.width)
+		  * static_cast<uint64_t>(header.height)
+		  * static_cast<uint64_t>(header.channels)
+		  * sizeOfDepth(header.depth);
 
 		// TODO: Check if the remaining size of the file equals to "imageSize"
 
