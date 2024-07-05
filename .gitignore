@@ -10,5 +10,7 @@ build/.vs
 build/.vs/*
 install
 install/*
+install-*
+install-*/*
 installed
 installed/*
