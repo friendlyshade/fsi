@@ -16,17 +16,6 @@
 #include <algorithm>
 #include <exception>
 
-#define WRITE_THUMB_AS_FILE 0
-
-#if WRITE_THUMB_AS_FILE
-	size_t thumbWidth = thumbMaxDimension;
-	size_t thumbHeight = thumbMaxDimension;
-	size_t thumbChannels = 4;
-	fsi::Depth thumbDepth = fsi::Depth::Uint8;
-
-	fsi::Header originalHeader;
-#endif
-
 FSI_INLINE_HPP
 fsi::WriterImpl::WriterImpl()
 {
@@ -50,18 +39,6 @@ void fsi::WriterImpl::open(const std::filesystem::path& path, const Header& head
 	// Check file extension
 	if (path.extension() != expectedFileExtension)
 		throw ExceptionInvalidFileExtension();
-
-#if WRITE_THUMB_AS_FILE
-	originalHeader.width = header.width;
-	originalHeader.height = header.height;
-	originalHeader.channels = header.channels;
-	originalHeader.depth = header.depth;
-
-	header.width = thumbWidth;
-	header.height = thumbHeight;
-	header.channels = thumbChannels;
-	header.depth = thumbDepth;
-#endif
 
 	// Set header
 	m_header = header;
@@ -110,18 +87,6 @@ bool fsi::WriterImpl::write(const uint8_t* data, ProgressThread::ReportProgressC
 		[&paused]() { paused = true; },
 		[&paused]() { paused = false; },
 		progressCallbackInterval);
-
-#if WRITE_THUMB_AS_FILE
-	uint8_t* thumbData = new uint8_t[thumbWidth * thumbHeight * thumbChannels * sizeOfDepth(thumbDepth)];
-	
-	fsi::Timer timer; timer.start();
-	proc::generateThumbnail(data, step, originalHeader, thumbData, thumbWidth, thumbHeight);
-	std::cout << "Thumbnail generated in " << timer.elapsedMs() << " ms\n";
-
-	// Temp: write thumb as the image
-	data = thumbData;
-	step = thumbWidth * thumbChannels;
-#endif
 
 	// Write the data specific to the file version
 	try
