@@ -108,6 +108,20 @@ bool fsi::Reader::read(uint8_t* data, uint8_t* thumbData,
 	return m_impl->read(data, thumbData, reportProgressCB, reportProgressOpaquePtr);
 }
 
+FSI_INLINE_HPP bool fsi::Reader::readRect(
+	uint8_t* data,
+	uint32_t x,
+	uint32_t y,
+	uint32_t width,
+	uint32_t height
+)
+{
+	if (!m_impl)
+		throw ExceptionFileIsNotOpen("The file must be opened before reading can be attempted");
+
+	return m_impl->readRect(data, x, y, width, height);
+}
+
 FSI_INLINE_HPP
 void fsi::Reader::close()
 {

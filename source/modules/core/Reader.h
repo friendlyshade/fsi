@@ -64,6 +64,25 @@ public:
 		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
+	/** @brief Reads a specific portion of an FSI file.
+	*
+	* The function reads the image bytes and optionally a thumbnail from the file. If a thumbnail is
+	* present Header::hasThumb will be true.
+	*
+	* @param data The image data.
+	* @param x The X coord of the rect origin (left to right).
+	* @param y The Y coord of the rect origin (top to bottom).
+	* @param width The width of the rect.
+	* @param height The height of the rect.
+	*/
+	bool readRect(
+		uint8_t* data,
+		uint32_t x,
+		uint32_t y,
+		uint32_t width,
+		uint32_t height
+	);
+
 	void close();
 
 private:

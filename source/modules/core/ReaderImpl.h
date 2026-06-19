@@ -41,6 +41,14 @@ public:
 		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
 		void* reportProgressOpaquePtr = nullptr);
 
+	bool readRect(
+		uint8_t* data,
+		uint32_t x,
+		uint32_t y,
+		uint32_t width,
+		uint32_t height
+	);
+
 	void close();
 
 private:

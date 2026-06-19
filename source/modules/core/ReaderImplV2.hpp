@@ -66,15 +66,11 @@ void fsi::ReaderImplV2::open(std::ifstream& file, Header& header)
 	file.read((char*)(&hasThumb), sizeof(uint8_t));
 
 	header.hasThumb = hasThumb > 0;
-	std::cout << "header.hasThumb: " << header.hasThumb << "\n";
 
 	if (header.hasThumb)
 	{
 		file.read((char*)(&header.thumbWidth), sizeof(uint16_t));
 		file.read((char*)(&header.thumbHeight), sizeof(uint16_t));
-
-		std::cout << "header.thumbWidth: " << header.thumbWidth << "\n";
-		std::cout << "header.thumbHeight: " << header.thumbHeight << "\n";
 
 		if (header.thumbWidth == 0 || header.thumbWidth > thumbMaxDimension)
 			throw ExceptionInvalidThumbnailWidth("Must be an integer between 1 and "
