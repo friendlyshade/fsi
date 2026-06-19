@@ -51,6 +51,8 @@ int main()
 
 	cout << "Reading input...\n";
 
+	fsi::Timer timer; timer.start();
+
 	fsi::Reader reader;
 
 	try
@@ -90,6 +92,8 @@ int main()
 
 	reader.close();
 
+	cout << "Crop read successfully in " << timer.elapsedMs() << " ms\n";
+
 	cout << "Input read successfully\n";
 
 	cout << " ---- Image information ----\n";
@@ -117,6 +121,8 @@ int main()
 	headerWriter.depth = image.depth;
 	headerWriter.hasThumb = true;
 
+	timer.start();
+
 	fsi::Writer writer(fsi::FormatVersion::V2);
 
 	try
@@ -128,8 +134,6 @@ int main()
 		cout << e << "\n";
 		return 1;
 	}
-
-	fsi::Timer timer; timer.start();
 
 	try
 	{
