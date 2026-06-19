@@ -11,9 +11,11 @@
 #include "ReaderImplV1.h"
 #include "ReaderImplV2.h"
 #include "consts.h"
+
 #include <iostream>
 #include <atomic>
 #include <string>
+#include <stdexcept>
 
 FSI_INLINE_HPP
 fsi::ReaderImpl::ReaderImpl()
@@ -130,6 +132,106 @@ bool fsi::ReaderImpl::read(uint8_t* data, uint8_t* thumbData,
 	progressThread.join(!canceled);
 	close();
 	return canceled;
+}
+
+FSI_INLINE_HPP bool fsi::ReaderImpl::readRect(
+    uint8_t* data,
+    uint32_t x,
+    uint32_t y,
+    uint32_t width,
+    uint32_t height
+)
+{
+    if (!m_file.is_open())
+        throw ExceptionFileIsNotOpen("The file must be opened before reading can be attempted");
+
+    if (!data)
+        throw std::runtime_error("Cannot read rectangle into a null data pointer.");
+
+    if (width == 0 || height == 0)
+        throw std::runtime_error("Rectangle width and height must be greater than zero.");
+
+    const uint64_t rectEndX = static_cast<uint64_t>(x) + static_cast<uint64_t>(width);
+    const uint64_t rectEndY = static_cast<uint64_t>(y) + static_cast<uint64_t>(height);
+
+    if (x >= m_header.width || y >= m_header.height ||
+        rectEndX > m_header.width || rectEndY > m_header.height)
+    {
+        throw std::runtime_error("Requested rectangle is outside the image bounds.");
+    }
+
+    const uint64_t bytesPerChannel =
+        sizeOfDepth(m_header.depth);
+
+    const uint64_t bytesPerPixel =
+        static_cast<uint64_t>(m_header.channels) * bytesPerChannel;
+
+    const uint64_t sourceRowSize =
+        static_cast<uint64_t>(m_header.width) * bytesPerPixel;
+
+    const uint64_t targetRowSize =
+        static_cast<uint64_t>(width) * bytesPerPixel;
+
+    uint64_t imageDataOffset = 0;
+
+    switch (formatVersion())
+    {
+    case FormatVersion::V1:
+        imageDataOffset =
+            sizeof(expectedFormatSignature) +
+            sizeof(uint32_t) + // version
+            sizeof(uint32_t) + // width
+            sizeof(uint32_t) + // height
+            sizeof(uint32_t) + // channels
+            sizeof(uint32_t);  // depth
+        break;
+
+    case FormatVersion::V2:
+        imageDataOffset =
+            sizeof(expectedFormatSignature) +
+            sizeof(uint32_t) + // version
+            sizeof(uint32_t) + // width
+            sizeof(uint32_t) + // height
+            sizeof(uint32_t) + // channels
+            sizeof(uint8_t)  + // depth
+            sizeof(uint8_t)  + // hasThumb
+            sizeof(uint16_t) + // thumbWidth
+            sizeof(uint16_t) + // thumbHeight
+            thumbSizeInBytes;
+        break;
+
+    default:
+        throw ExceptionInvalidFormatVersion(
+            "Invalid FSI format version while reading rectangle."
+        );
+    }
+
+    for (uint32_t row = 0; row < height; ++row)
+    {
+        const uint64_t sourceOffset =
+            imageDataOffset +
+            (static_cast<uint64_t>(y + row) * sourceRowSize) +
+            (static_cast<uint64_t>(x) * bytesPerPixel);
+
+        uint8_t* targetRow =
+            data + static_cast<uint64_t>(row) * targetRowSize;
+
+        m_file.clear();
+        m_file.seekg(static_cast<std::streamoff>(sourceOffset), std::ios::beg);
+
+        if (!m_file)
+            throw std::runtime_error("Failed to seek while reading FSI rectangle.");
+
+        m_file.read(
+            reinterpret_cast<char*>(targetRow),
+            static_cast<std::streamsize>(targetRowSize)
+        );
+
+        if (!m_file)
+            throw std::runtime_error("Failed to read row while reading FSI rectangle.");
+    }
+
+    return true;
 }
 
 FSI_INLINE_HPP
