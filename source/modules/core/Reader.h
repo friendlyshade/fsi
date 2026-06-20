@@ -59,6 +59,10 @@ public:
 	* additionally be used for pausing, resuming and canceling the operation.
 	* @param reportProgressOpaquePtr Opaque pointer passed to reportProgressCB in case access to a member
 	* of an instance of opaquePointer is required.
+	* 
+	* @warning This function is a one-shot sequential read. It is intended to be called only once,
+	*          immediately after `open()`. Do not call it after `readRect()` or after another
+	*          call to `read()`.
 	*/
 	bool read(uint8_t* data, uint8_t* thumbData = nullptr,
 		ProgressThread::ReportProgressCB reportProgressCB = nullptr,
@@ -74,6 +78,8 @@ public:
 	* @param y The Y coord of the rect origin (top to bottom).
 	* @param width The width of the rect.
 	* @param height The height of the rect.
+	* 
+	* @note Calling this function multiple times is supported as long as the reader remains open.
 	*/
 	bool readRect(
 		uint8_t* data,
@@ -81,6 +87,15 @@ public:
 		uint32_t y,
 		uint32_t width,
 		uint32_t height
+	);
+
+	bool readRect(
+		uint8_t* data,
+		uint32_t x,
+		uint32_t y,
+		uint32_t width,
+		uint32_t height,
+		uint64_t dstStrideBytes
 	);
 
 	void close();
