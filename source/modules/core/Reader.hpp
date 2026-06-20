@@ -13,9 +13,11 @@
 #include "ReaderImplV1.h"
 #include "ReaderImplV2.h"
 #include "exceptions.hpp"
+
 #include <iostream>
 #include <atomic>
 #include <string>
+#include <cstdint>
 
 FSI_INLINE_HPP
 fsi::Reader::Reader()
@@ -120,6 +122,21 @@ FSI_INLINE_HPP bool fsi::Reader::readRect(
 		throw ExceptionFileIsNotOpen("The file must be opened before reading can be attempted");
 
 	return m_impl->readRect(data, x, y, width, height);
+}
+
+FSI_INLINE_HPP bool fsi::Reader::readRect(
+	uint8_t* data,
+	uint32_t x,
+	uint32_t y,
+	uint32_t width,
+	uint32_t height,
+	uint64_t dstStrideBytes
+)
+{
+	if (!m_impl)
+		throw ExceptionFileIsNotOpen("The file must be opened before reading can be attempted");
+
+	return m_impl->readRect(data, x, y, width, height, dstStrideBytes);
 }
 
 FSI_INLINE_HPP
