@@ -141,7 +141,7 @@ int main()
 	std::filesystem::path outPath = "../../extras/samples/read_rect/rect_output.fsi";
 	std::filesystem::path repeatOutPath = "../../extras/samples/read_rect/rect_repeat_output.fsi";
 
-	cout << "Reading input...\n";
+	cout << "Reading rect from input...\n";
 
 	fsi::Timer timer; timer.start();
 
