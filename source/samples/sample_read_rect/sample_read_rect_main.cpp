@@ -30,7 +30,7 @@ struct Image
 
 	~Image()
 	{
-		delete data;
+		delete[] data;
 	}
 
 	uint8_t* data;

@@ -42,7 +42,7 @@ public:
 
 	~Image()
 	{
-		delete data;
+		delete[] data;
 	}
 
 	FSI_DISABLE_COPY_MOVE(Image); // Just to keep memory management simple
